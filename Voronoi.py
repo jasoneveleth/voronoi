@@ -31,8 +31,12 @@ def handleSiteEvent(event):
         node._event = None
     parent = node._parent
     if parent._left == node:
-        firBranch = status.addLeft(parent, 'breakpoint', [node._site, event._site], diagram.addEdge())
-        secBranch = status.addLeft(firBranch, 'breakpoint', [event._site, node._site], diagram.addEdge())
+        firBranch = status.addRight(parent, 'breakpoint', [node._site, event._site], diagram.addEdge())
+        secBranch = status.addRight(firBranch, 'breakpoint', [event._site, node._site], diagram.addEdge())
+        firBranch._halfedge._twin =  
+        leafl = status.addLeft(firBranch, 'arc', node._site)
+        leafm = status.addLeft(secBranch, 'arc', event._site)
+        leafr = status.addRight(secBranch, 'arc', node._site)
         
 
 

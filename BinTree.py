@@ -84,7 +84,6 @@ class BinTree:
 
         return node
 
-
     def intersect(self, bp, l):
         p1 = bp[0]
         p2 = bp[1]
