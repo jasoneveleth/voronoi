@@ -1,0 +1,111 @@
+VERTEX
+    # def incidentEdge(self):
+    #     return self._incidentEdge
+
+    # def setIncidentEdge(self, edge):
+    #     self._incidentEdge = edge
+    #     return edge
+
+FACE
+    # def setOuterComponent(self, edge):
+    #     self._outerComponent = edge
+    #     return edge
+
+    # def setInnterComponent(self, edge):
+    #     self._innerComponent = edge
+    #     return edge
+    
+    # def innerComponent(self):
+    #     return self._innerComponent
+
+    # def outerComponent(self):
+    #     return self._outerComponent
+
+HALFEDGE
+    # def origin(self):
+    #     return self._origin
+
+    # def twin(self):
+    #     return self._twin
+
+    # def incidentFace(self):
+    #     return self._incidentFace
+
+    # def next(self):
+    #     return self._next
+
+    # def prev(self):
+    #     return self._prev
+    
+    # def setOrigin(self, origin):
+    #     self.__origin = origin
+    #     return self._origin
+
+    # def setTwin(self, twin):
+    #     self.__twin = twin
+    #     return self._twin
+
+    # def setIncidentFace(self, incidentFace):
+    #     self.__incidentFace = incidentFace
+    #     return self._incidentFace
+
+    # def setNext(self, next):
+    #     self.__next = next
+    #     return self._next
+
+    # def setPrev(self, prev):
+    #     self.__prev = prev
+    #     return self._prev
+
+BINTREE
+    # def left(self, node):
+    #     return node.left()
+
+    # def right(self, node):
+    #     return node.right()
+
+    # def parent(self, node):
+    #     return node.parent()
+
+    # def depth(self, node):
+    #     return node.depth()
+
+    # def version(self, node):
+    #     return node.version()
+
+    # def site(self, node):
+    #     return node.site()
+
+    # def event(self, node):
+    #     return node.event()
+
+    # def breakpoint(self, node):
+    #     return node.breakpoint()
+
+    # def halfedge(self, node):
+    #     return node.halfedge()
+
+NODE
+    # def version(self):
+    #     return self.version
+
+    # def site(self):
+    #     return self._site
+
+    # def event(self):
+    #     return self._event
+
+    # def breakpoint(self):
+    #     return self._breakpoint
+
+    # def halfedge(self):
+    #     return self._halfedge
+
+    # def left(self):
+    #     return self._left
+
+    # def right(self):
+    #     return self._right
+
+    # def parent(self):
+    #     return self._parent

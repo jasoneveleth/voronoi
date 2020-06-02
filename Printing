@@ -1,0 +1,22 @@
+INTERSECT
+        # for i in [p1[0], (p1[1]+l)/2, (p1[1]-l)/2, p2[0], (p2[1]+l)/2, (p2[1]-l)/2]:
+        #     print(i)
+
+        # a1 = 1.0/(2*(p1[1]-l))
+        # b1 = 0 - float(p1[0])/(p1[1]-l)
+        # c1 = float(p1[0]**2 + p1[1]**2 - l**2)/(2*(p1[1]-l))
+        # print(str(a1) + "x^2 + " + str(b1) + "x + " + str(c1))
+
+        # a2 = 1.0/(2*(p2[1]-l))
+        # b2 = 0 - float(p2[0])/(p2[1]-l)
+        # c2 = float(p2[0]**2 + p2[1]**2 - l**2)/(2*(p2[1]-l))
+        # print(str(a2) + "x^2 + " + str(b2) + "x + " + str(c2))
+
+        # print()
+        # print(str(a) + " " + str(a1 - a2))
+        # print(str(b) + " " + str(b1 - b2))
+        # print(str(c) + " " + str(c1 - c2))
+
+        # print(a == a1 - a2)
+        # print(b == b1 - b2)
+        # print(c == c1 - c2)
