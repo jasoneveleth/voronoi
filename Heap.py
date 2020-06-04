@@ -8,7 +8,7 @@ class Event:
             self._site = data
         elif self._kind == 'circle event':
             self._leaf = data
-            self._point = self.circle(p1, p2, p3)
+            self._point = self.circum(p1, p2, p3)
         else:
             print("yoinks, non-event")
     

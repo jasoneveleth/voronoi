@@ -46,6 +46,9 @@ class DCEL:
         edge = HalfEdge()
         self._edges.append(edge)
         return edge
+    
+    def dest(self, edge):
+        return edge._twin._origin
 
     def vertices(self):
         return self._vertices

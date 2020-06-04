@@ -83,6 +83,22 @@ class BinTree:
                 node = node._right
 
         return node
+    
+    def successor(self, node):
+        if node._right == None:
+            
+        else:
+            break
+
+    # def key(self, node, y):
+    #     if node._version == 'arc':
+    #         return node._site[0]
+    #     else:
+    #         i = self.intersect(node._breakpoint, y)
+    #         if len(i) == 1:
+    #             return i[0]
+    #         else:
+    #             return min(i[0], i[1])[0]
 
     def intersect(self, bp, l):
         p1 = bp[0]
@@ -106,18 +122,18 @@ class BinTree:
     def addRight(self, node, version, data1, data2):
         node.addRight(version, data1, data2)
         self._size += 1
-        depth = node.right().depth()
+        depth = node._right.depth()
         if depth + 1 > self._height:
             self._height = depth + 1
-        return node.right()
+        return node._right
 
     def addLeft(self, node, version, data1, data2):
         node.addLeft(version, data1, data2)
         self._size += 1
-        depth = node.left().depth()
+        depth = node._left.depth()
         if depth + 1 > self._height:
             self._height = depth + 1
-        return node.left()
+        return node._left
     
     def isExternal(self, node):
-        return node.right() == None and node.left() == None
+        return node._right == None and node._left == None

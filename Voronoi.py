@@ -33,7 +33,8 @@ def handleSiteEvent(event):
     if parent._left == node:
         firBranch = status.addRight(parent, 'breakpoint', [node._site, event._site], diagram.addEdge())
         secBranch = status.addRight(firBranch, 'breakpoint', [event._site, node._site], diagram.addEdge())
-        firBranch._halfedge._twin =  
+        firBranch._halfedge._twin = secBranch._halfedge
+        secBranch._halfedge._twin = firBranch._halfedge
         leafl = status.addLeft(firBranch, 'arc', node._site)
         leafm = status.addLeft(secBranch, 'arc', event._site)
         leafr = status.addRight(secBranch, 'arc', node._site)
@@ -46,6 +47,8 @@ def handleCircleEvent(leaf):
 
 """
 TODO
+- Successor for BinTree
+- figure out events for leaf nodes in handlesiteevent
 - Handle Site Event
 - Handle Circle Event
 - Cobble together the diagram
