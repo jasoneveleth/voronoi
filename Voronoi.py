@@ -16,7 +16,7 @@ def makeDiagram(points):
         if event._kind == 'site event':
             handleSiteEvent(event)
         else:
-            handleCircleEvent(event)
+            handleCircleEvent(event._leaf)
     # TODO compute a box and attach half-infinite edges to boudning box by updating appropriately
     # TODO traverse the half edges to add the cell records and the pointers to and from them
     
@@ -25,19 +25,34 @@ def handleSiteEvent(event):
     if status.empty():
         status.addRoot(True, event._site, event)
         return
-    node = status.findArc(event._site)
-    if node._event != None and node._event._kind == 'circle event':
-        events.remove(node._event)
-        node._event = None
-    parent = node._parent
-    if parent._left == node:
-        firBranch = status.addRight(parent, 'breakpoint', [node._site, event._site], diagram.addEdge())
-        secBranch = status.addRight(firBranch, 'breakpoint', [event._site, node._site], diagram.addEdge())
-        firBranch._halfedge._twin = secBranch._halfedge
-        secBranch._halfedge._twin = firBranch._halfedge
-        leafl = status.addLeft(firBranch, 'arc', node._site)
-        leafm = status.addLeft(secBranch, 'arc', event._site)
-        leafr = status.addRight(secBranch, 'arc', node._site)
+    oldNode = status.findArc(event._site)
+    if oldNode._event != None: # this assumes the _event is a circle event (which is true: nodes either store circle events or halfedges)
+        events.remove(oldNode._event)
+        oldNode._event = None
+    if oldNode._parent._right == oldNode:
+        firBranch = status.addRight(oldNode._parent, 'breakpoint', [oldNode._site, event._site], diagram.addEdge())
+    else:
+        firBranch = status.addRight(oldNode._parent, 'breakpoint', [oldNode._site, event._site], diagram.addEdge())
+    secBranch = status.addRight(firBranch, 'breakpoint', [event._site, oldNode._site], diagram.addEdge())
+    firBranch._halfedge._twin = secBranch._halfedge
+    secBranch._halfedge._twin = firBranch._halfedge
+    leafl = status.addLeft(firBranch, 'arc', oldNode._site)
+    leafm = status.addLeft(secBranch, 'arc', event._site)
+    leafr = status.addRight(secBranch, 'arc', oldNode._site)
+    
+    # check for new circle events
+    toLeft = status.prevLeaf(leafl)
+    if leafl._site[1] >= leafm._site[1] and leafl._site[1] >= toLeft._site[1]:
+        e = events.insert('circle event', leafl, toLeft._site, leafl._site, leafm._site)
+        leafl._event = e
+    toRight = status.nextLeaf(leafr)
+    if leafr._site[1] >= leafm._site[1] and leafr._site[1] >= toRight._site[1]:
+        e = events.insert('circle event', leafr, leafm._site, leafr._site, toRight._site)
+        leafr._event = e
+
+def handleCircleEvent(event):
+
+
         
 
 
@@ -47,8 +62,6 @@ def handleCircleEvent(leaf):
 
 """
 TODO
-- Successor for BinTree
-- figure out events for leaf nodes in handlesiteevent
 - Handle Site Event
 - Handle Circle Event
 - Cobble together the diagram
@@ -57,7 +70,6 @@ TODO
 """
 Possible bugs: 
 - if the sites fed to the circle algorithm are colinear
-
-Unlikely
-- circle lowest point algorithm doesn't work
+- getting next child of last node
+- null checking the methods of BinTree
 """
