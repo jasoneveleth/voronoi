@@ -34,7 +34,7 @@ class Node:
         return self._left
     
     def getX(self):
-        if node._version == 'arc':
+        if self._version == 'arc':
             return self._site[0]
         else:
             return 'breakpoint'

@@ -42,6 +42,10 @@ class DCEL:
     def edges(self):
         return self._edges
     
+    def addVertex(self, xy):
+        vertex = Vertex(xy)
+        return vertex
+    
     def addEdge(self):
         edge = HalfEdge()
         self._edges.append(edge)

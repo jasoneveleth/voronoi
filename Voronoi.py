@@ -53,22 +53,47 @@ def handleSiteEvent(event):
 def handleCircleEvent(event):
     leaf = event._leaf
     status.remove(leaf)
+    nextLeaf = status.nextLeaf(leaf)
+    prevLeaf = status.prevLeaf(leaf)
     p1 = leaf._parent
-    p2 = leaf._parent
-    p1._breakpoint = None # TODO
-    p2._breakpoint = None # TODO
-    # Update the tuples representing the breakpoints at the internal nodes.
+    p2 = p1._parent
+    if p2._left == p1:
+        p2._breakpoint = [p1._breakpoint[0], p2._breakpoint[1]]
+        p2._left = p1._left
+    else:
+        p2._breakpoint = [p2._breakpoint[0], p1._breakpoint[1]]
+        p2._right = p1._right
 
-    e1 = status.nextLeaf(leaf)._event
+    e1 = nextLeaf._event
     events.remove(e1)
-    status.nextLeaf(leaf)._event = None
-    e2 = status.prevLeaf(leaf)._event
+    nextLeaf._event = None
+    e2 = prevLeaf._event
     events.remove(e2)
-    status.prevLeaf(leaf)._event = None
+    prevLeaf._event = None
 
-    event._point = 
-    # Add the center of the circle causing the event as a vertex record to the doubly-connected edge list D storing the Voronoi diagram under construc- tion
-    # Create two half-edge records corresponding to the new breakpoint of the beach line. Set the pointers between them appropriately.
+    coord = event._point
+    vert = diagram.addVertex(coord)
+
+    edge1 = diagram.addEdge()
+    edge2 = diagram.addEdge()
+    edge1._twin = edge2
+    edge2._twin = edge1
+    edge1._origin = coord
+
+    vert._incidentEdge = edge1
+
+    half1 = p1._halfedge
+    half2 = p2._halfedge
+    p2._halfedge = edge1
+    if half1._halfedge._origin != None:
+        half1._origin = coord
+        half1.
+    else:
+        half1._twin._origin = coord
+
+
+
+
     # Attach the three new records to the half-edge records that end at the vertex
     # Check the new triple of consecutive arcs that has the former left neighbor of α as its middle arc to see if the two breakpoints of the triple converge.
     # If so, insert the corresponding circle event into Q. and set pointers between the new circle event in Q and the corresponding leaf of T. 
