@@ -147,6 +147,17 @@ class BinTree:
             return successor
         else:
             return self.getMax(successor)
+    
+    def remove(self, node):
+        if node == self.root():
+            print('trying to remove root')
+            return
+        p = node._parent
+        if p._left == node:
+            p._left = None
+        else:
+            p._right = None
+        self._size -= 1
 
     # def key(self, node, y):
     #     if node._version == 'arc':

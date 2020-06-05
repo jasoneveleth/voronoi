@@ -16,7 +16,7 @@ def makeDiagram(points):
         if event._kind == 'site event':
             handleSiteEvent(event)
         else:
-            handleCircleEvent(event._leaf)
+            handleCircleEvent(event)
     # TODO compute a box and attach half-infinite edges to boudning box by updating appropriately
     # TODO traverse the half edges to add the cell records and the pointers to and from them
     
@@ -51,18 +51,33 @@ def handleSiteEvent(event):
         leafr._event = e
 
 def handleCircleEvent(event):
+    leaf = event._leaf
+    status.remove(leaf)
+    p1 = leaf._parent
+    p2 = leaf._parent
+    p1._breakpoint = None # TODO
+    p2._breakpoint = None # TODO
+    # Update the tuples representing the breakpoints at the internal nodes.
 
+    e1 = status.nextLeaf(leaf)._event
+    events.remove(e1)
+    status.nextLeaf(leaf)._event = None
+    e2 = status.prevLeaf(leaf)._event
+    events.remove(e2)
+    status.prevLeaf(leaf)._event = None
 
-        
+    event._point = 
+    # Add the center of the circle causing the event as a vertex record to the doubly-connected edge list D storing the Voronoi diagram under construc- tion
+    # Create two half-edge records corresponding to the new breakpoint of the beach line. Set the pointers between them appropriately.
+    # Attach the three new records to the half-edge records that end at the vertex
+    # Check the new triple of consecutive arcs that has the former left neighbor of α as its middle arc to see if the two breakpoints of the triple converge.
+    # If so, insert the corresponding circle event into Q. and set pointers between the new circle event in Q and the corresponding leaf of T. 
+    # Do the same for the triple where the former right neighbor is the middle arc.
 
-
-def handleCircleEvent(leaf):
-    pass
 
 
 """
 TODO
-- Handle Site Event
 - Handle Circle Event
 - Cobble together the diagram
 """
