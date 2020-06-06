@@ -71,30 +71,37 @@ def handleCircleEvent(event):
     events.remove(e2)
     prevLeaf._event = None
 
+    # getting point and making vertex
     coord = event._point
     vert = diagram.addVertex(coord)
 
+    # making edges
     edge1 = diagram.addEdge()
     edge2 = diagram.addEdge()
     edge1._twin = edge2
     edge2._twin = edge1
     edge1._origin = coord
 
+    # it needs one incident edge
     vert._incidentEdge = edge1
 
+    # adding origin
     half1 = p1._halfedge
     half2 = p2._halfedge
     p2._halfedge = edge1
-    if half1._halfedge._origin != None:
+    if half1._origin != None:
         half1._origin = coord
-        half1.
     else:
         half1._twin._origin = coord
+    if half2._origin != None:
+        half2._origin = coord
+    else:
+        half2._twin._origin = coord
 
+    # adding next and prev to what we know
+    
 
-
-
-    # Attach the three new records to the half-edge records that end at the vertex
+    # Update the records
     # Check the new triple of consecutive arcs that has the former left neighbor of α as its middle arc to see if the two breakpoints of the triple converge.
     # If so, insert the corresponding circle event into Q. and set pointers between the new circle event in Q and the corresponding leaf of T. 
     # Do the same for the triple where the former right neighbor is the middle arc.
@@ -103,6 +110,7 @@ def handleCircleEvent(event):
 
 """
 TODO
+- Next leaf and prev leaf need to handle when there isn't a left leaf to an internal node
 - Handle Circle Event
 - Cobble together the diagram
 """
@@ -112,4 +120,5 @@ Possible bugs:
 - if the sites fed to the circle algorithm are colinear
 - getting next child of last node
 - null checking the methods of BinTree
+- circle event when arc is not under the site
 """

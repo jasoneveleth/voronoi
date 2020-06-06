@@ -94,7 +94,7 @@ class BinTree:
         if node._right == None:
             child = node
             node = node._parent
-            while not (node == None):
+            while not (node._parent == None):
                 if node._left == child:
                     return node
                 child = node
@@ -107,10 +107,8 @@ class BinTree:
         if node == None:
             node = self.root()
         while not (node == None):
-            if node.left == None:
-                return node
             node = node._left
-        return node
+        return node._parent
     
     def getMax(self, node):
         if node == None:
@@ -133,21 +131,27 @@ class BinTree:
             return node
         else:
             return self.getMax(node._left)
-    
+        
     def nextLeaf(self, node):
-        predessesor = self.predessesor(node)
-        if (predessesor._left == None) and (predessesor._right == None):
-            return predessesor
-        else:
-            return self.getMin(predessesor)
-    
-    def prevLeaf(self, node):
         successor = self.successor(node)
-        if (successor._left == None) and (successor._right == None):
-            return successor
-        else:
-            return self.getMax(successor)
+        return self.highestLeaf(successor._right)
     
+    def highestLeaf(self, node):
+        if node._left != None:
+            return self.highestLeaf(node._left)
+        elif node._right != None:
+            return self.highestLeaf(node._right)
+        else:
+            return node
+
+    def prevLeaf(self, node):
+        predessesor = self.predessesor(node)
+        return self.lowestLeaf(node._left)
+
+    
+    def lowestLeaf(self, node):
+        
+
     def remove(self, node):
         if node == self.root():
             print('trying to remove root')

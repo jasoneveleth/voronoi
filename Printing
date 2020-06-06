@@ -82,3 +82,13 @@ CIRCLE LOWEST POINT
         r = ((p1[0]-cx)**2 + (p1[1]-cy)**2)**0.5
         # print('r = ' + str(r))
         return [cx, cy-r]
+
+NEXTLEAF
+        if (successor._left == None) and (successor._right == None):
+            return successor
+        else:
+
+PREVLEAF
+        if (predessesor._left == None) and (predessesor._right == None):
+            return predessesor
+        else:
