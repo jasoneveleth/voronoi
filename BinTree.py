@@ -134,23 +134,27 @@ class BinTree:
         
     def nextLeaf(self, node):
         successor = self.successor(node)
-        return self.highestLeaf(successor._right)
+        return self.lowestLeaf(successor._right)
     
-    def highestLeaf(self, node):
+    def lowestLeaf(self, node):
         if node._left != None:
-            return self.highestLeaf(node._left)
+            return self.lowestLeaf(node._left)
         elif node._right != None:
-            return self.highestLeaf(node._right)
+            return self.lowestLeaf(node._right)
         else:
             return node
 
     def prevLeaf(self, node):
         predessesor = self.predessesor(node)
-        return self.lowestLeaf(node._left)
-
+        return self.highestLeaf(predessesor._left)
     
-    def lowestLeaf(self, node):
-        
+    def highestLeaf(self, node):
+        if node._right != None:
+            return self.highestLeaf(node._right)
+        if node._left != None:
+            return self.highestLeaf(node._left)
+        else:
+            return node
 
     def remove(self, node):
         if node == self.root():
