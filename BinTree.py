@@ -76,20 +76,25 @@ class BinTree:
             bp = node._breakpoint
             intersection = self.intersect(bp, site[1])
 
-            if len(intersection) == 1:
-                x = intersection[0][0]
-            elif bp[0][0] <= bp[1][0]:
-                x =  min(intersection[0][0], intersection[1][0])
-            else:
-                x = max(intersection[0][0], intersection[1][0])
-
-            if site[0] < x:
+            if site[0] < intersection[0]:
                 node = node._left
             else:
                 node = node._right
 
         return node
     
+    def isRightChild(self, node):
+        if node._parent != None:
+            if node._parent._right == node:
+                return True
+        return False
+
+    def isLeftChild(self, node):
+        if node._parent != None:
+            if node._parent._left == node:
+                return True
+        return False
+
     def successor(self, node):
         if node._right == None:
             child = node
@@ -194,7 +199,17 @@ class BinTree:
         y1 = 1.0/(2*(p1[1] - l))*(x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2)
         x2 = (- b - (b**2 - 4*a*c)**0.5)/(2*a)
         y2 = 1.0/(2*(p1[1] - l))*(x2**2 - 2*p1[0]*x2 + p1[0]**2 + p1[1]**2 - l**2)
-        return [[x1,y1],[x2,y2]]
+        if x1 > x2:
+            larger = [x1, y2]
+            smaller = [x2,y2]
+        else:
+            larger = [x2, y2]
+            smaller = [x1, y2]
+
+        if bp[0][0] > bp[1][0]:
+            return larger
+        else:
+            return smaller
 
     def addRight(self, node, version, data1, data2=None):
         node.addRight(version, data1, data2)
