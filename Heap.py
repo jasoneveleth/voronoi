@@ -1,9 +1,9 @@
 from math import ceil
 
 class Event:
-    def __init__(self, kind, data, p1=None, p2=None, p3=None):
+    def __init__(self, index, kind, data, p1=None, p2=None, p3=None):
         self._kind = kind
-        self._index = None
+        self._index = index
         if self._kind == 'site event':
             self._site = data
         elif self._kind == 'circle event':
@@ -41,15 +41,15 @@ class Heap:
         return self.size() == 0
 
     def remove(self, event):
-        last = self._array[-1]
-        self.swap(event, last)
-        self._array.pop() # removes last element
-        self.upheap(last)
-        self.downheap(last)
+        if self.size() > 0:
+            last = self._array[-1]
+            self.swap(event, last)
+            self._array.pop() # removes last element
+            self.upheap(last)
+            self.downheap(last)
 
     def insert(self, kind, data, p1=None, p2=None, p3=None):
-        event = Event(kind, data, p1=None, p2=None, p3=None)
-        event._index = self.size()
+        event = Event(self.size(), kind, data, p1=None, p2=None, p3=None)
         self._array.append(event)
         self.upheap(event)
         self.downheap(event)

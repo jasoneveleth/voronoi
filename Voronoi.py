@@ -11,6 +11,7 @@ def makeDiagram(points):
     returns the doubly connected edge list"""
     for p in points:
         events.insert('site event', p)
+        
     while not events.empty():
         event = events.removeMax()
         if event._kind == 'site event':
@@ -25,7 +26,7 @@ def makeDiagram(points):
 
 def handleSiteEvent(event):
     if status.empty():
-        status.addRoot(True, event._site, event)
+        status.addRoot('arc', event._site, None)
         return
     oldNode = status.findArc(event._site)
 
@@ -39,116 +40,115 @@ def handleSiteEvent(event):
     oldNode._breakpoint = [oldNode._site, event._site]
     oldNode._halfedge = diagram.addEdge()
 
-    secBranch = status.addRight(oldNode, 'breakpoint', [event._site, oldNode._site], diagram.addEdge())
-    leafl = status.addLeft(oldNode, 'arc', oldNode._site)
-    leafm = status.addLeft(secBranch, 'arc', event._site)
-    leafr = status.addRight(secBranch, 'arc', oldNode._site)
-    
+    newBreakpoint = status.addRight(oldNode, 'breakpoint', [event._site, oldNode._site], diagram.addEdge())
+    oldArcLeft = status.addLeft(oldNode, 'arc', oldNode._site)
+    newArc = status.addLeft(newBreakpoint, 'arc', event._site)
+    oldArcRight = status.addRight(newBreakpoint, 'arc', oldNode._site)
+
     oldNode._site = None
 
     # update edges
-    oldNode._halfedge._twin = secBranch._halfedge
-    secBranch._halfedge._twin = oldNode._halfedge
+    oldNode._halfedge._twin = newBreakpoint._halfedge
+    newBreakpoint._halfedge._twin = oldNode._halfedge
     
     # check for new circle events
-    toLeft = status.prevLeaf(leafl)
-    if leafl._site[1] >= leafm._site[1] and leafl._site[1] >= toLeft._site[1]:
-        e = events.insert('circle event', leafl, toLeft._site, leafl._site, leafm._site)
-        leafl._event = e
-    toRight = status.nextLeaf(leafr)
-    if leafr._site[1] >= leafm._site[1] and leafr._site[1] >= toRight._site[1]:
-        e = events.insert('circle event', leafr, leafm._site, leafr._site, toRight._site)
-        leafr._event = e
+    if not status.isFirst(oldArcLeft):
+        toLeft = status.prevLeaf(oldArcLeft)
+        checkNewCircle(toLeft, oldArcLeft, newArc)
+
+    if not status.isLast(oldArcRight):
+        toRight = status.nextLeaf(oldArcRight)
+        checkNewCircle(newArc, oldArcRight, toRight)
+    
+def checkNewCircle(left, center, right):
+    if center._site[1] >= right._site[1] and center._site[1] >= left._site[1]:
+        e = events.insert('circle event', center, left._site, center._site, right._site)
+        center._event = e
 
 def handleCircleEvent(leaf):
     status.remove(leaf)
     nextLeaf = status.nextLeaf(leaf)
     prevLeaf = status.prevLeaf(leaf)
-    p1 = leaf._parent
-    p2 = p1._parent
+    parent = leaf._parent
+    grandparent = parent._parent
 
-
-    if p2._left == p1:
-        p2._breakpoint = [p1._breakpoint[0], p2._breakpoint[1]]
-        p2._left = p1._left
+    # readjusting tree
+    if status.isLeftChild(parent):
+        grandparent._left = parent._left
     else:
-        p2._breakpoint = [p2._breakpoint[0], p1._breakpoint[1]]
-        p2._right = p1._right
+        grandparent._right = parent._right
+        
+    grandparent._breakpoint = [parent._breakpoint[0], grandparent._breakpoint[1]]
 
     # remove false alarm circle events
-    e1 = nextLeaf._event
-    events.remove(e1)
-    nextLeaf._event = None
-    e2 = prevLeaf._event
-    events.remove(e2)
-    prevLeaf._event = None
+    if nextLeaf._event != None:
+        events.remove(nextLeaf._event)
+        nextLeaf._event = None
+    if prevLeaf._event != None:
+        events.remove(prevLeaf._event)
+        prevLeaf._event = None
 
     # getting point and making vertex
     coord = leaf._event._point
     vert = diagram.addVertex(coord)
 
     # making edges
-    edge1 = diagram.addEdge()
-    edge2 = diagram.addEdge()
-    edge1._twin = edge2
-    edge2._twin = edge1
-    edge1._origin = coord
+    newHalf = diagram.addEdge()
+    newHalf._twin = diagram.addEdge()
+    newHalf._twin._twin = newHalf
+    newHalf._origin = coord
 
     # it needs one incident edge
-    vert._incidentEdge = edge1
+    vert._incidentEdge = newHalf
 
     # adding origin
-    oldHalf1 = p1._halfedge
-    odlHalf2 = p2._halfedge
-    p2._halfedge = edge1
-    if oldHalf1._origin != None:
-        oldHalf1._origin = coord
+    oldHalfParent = parent._halfedge
+    oldHalfGrand = grandparent._halfedge
+    grandparent._halfedge = newHalf
+    if oldHalfParent._origin != None:
+        oldHalfParent._origin = coord
     else:
-        oldHalf1._twin._origin = coord
-    if odlHalf2._origin != None:
-        odlHalf2._origin = coord
+        oldHalfParent._twin._origin = coord
+
+    if oldHalfGrand._origin != None:
+        oldHalfGrand._origin = coord
     else:
-        odlHalf2._twin._origin = coord
+        oldHalfGrand._twin._origin = coord
 
     # adding next and prev to the edges that are leaving
-    if oldHalf1._origin != coord:
-        if odlHalf2._origin != coord:
-            oldHalf1._next = odlHalf2._twin
-            oldHalf1._twin._prev = odlHalf2
-
-            odlHalf2._next = oldHalf1._twin
-            odlHalf2._twin._prev = oldHalf1
+    if oldHalfParent._origin != coord:
+        if oldHalfGrand._origin != coord:
+            oldHalfParent._next = oldHalfGrand._twin
+            oldHalfParent._twin._prev = oldHalfGrand
+            oldHalfGrand._next = oldHalfParent._twin
+            oldHalfGrand._twin._prev = oldHalfParent
         else:
-            oldHalf1._next = odlHalf2
-            oldHalf1._twin._prev = odlHalf2._twin
-
-            odlHalf2._prev = oldHalf1
-            odlHalf2._twin._next = oldHalf1._twin
+            oldHalfParent._next = oldHalfGrand
+            oldHalfParent._twin._prev = oldHalfGrand._twin
+            oldHalfGrand._prev = oldHalfParent
+            oldHalfGrand._twin._next = oldHalfParent._twin
     else:
-        if odlHalf2._origin != coord:
-            oldHalf1._prev = odlHalf2._twin
-            oldHalf1._twin._next = odlHalf2
-
-            odlHalf2._prev = oldHalf1._twin
-            odlHalf2._twin._next = oldHalf1
+        if oldHalfGrand._origin != coord:
+            oldHalfParent._prev = oldHalfGrand._twin
+            oldHalfParent._twin._next = oldHalfGrand
+            oldHalfGrand._prev = oldHalfParent._twin
+            oldHalfGrand._twin._next = oldHalfParent
         else:
-            oldHalf1._prev = odlHalf2
-            oldHalf1._twin._next = odlHalf2._twin
-
-            odlHalf2._next = oldHalf1
-            odlHalf2._twin._prev = oldHalf1._twin
+            oldHalfParent._prev = oldHalfGrand
+            oldHalfParent._twin._next = oldHalfGrand._twin
+            oldHalfGrand._next = oldHalfParent
+            oldHalfGrand._twin._prev = oldHalfParent._twin
 
     # check for circle events
-    toLeft = status.prevLeaf(prevLeaf)
-    if prevLeaf._site[1] >= nextLeaf._site[1] and prevLeaf._site[1] >= toLeft._site[1]:
-        e = events.insert('circle event', prevLeaf, toLeft._site, prevLeaf._site, nextLeaf._site)
-        prevLeaf._event = e
-    toRight = status.nextLeaf(nextLeaf)
-    if nextLeaf._site[1] >= prevLeaf._site[1] and nextLeaf._site[1] >= toRight._site[1]:
-        e = events.insert('circle event', nextLeaf, prevLeaf._site, nextLeaf._site, toRight._site)
-        nextLeaf._event = e
+    if not status.isFirst(prevLeaf):
+        toLeft = status.prevLeaf(prevLeaf)
+        checkNewCircle(toLeft, prevLeaf, nextLeaf)
+    if not status.isLast(nextLeaf):
+        toRight = status.nextLeaf(nextLeaf)
+        checkNewCircle(prevLeaf, nextLeaf, toRight)
 
-
+if __name__ == "__main__":
+    diagram = makeDiagram([[0.3,0.7],[0.7,0.3]])
 
 """
 TODO

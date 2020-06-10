@@ -3,10 +3,10 @@ class Node:
         self._parent = parent
         self._version = version
         if version == 'arc':
-            self._site = data1
-            self._event = data2
-            self._breakpoint = None
-            self._halfedge = None
+            self._site = data1 # ex. [0,0]
+            self._event = data2 # ex. Event()
+            self._breakpoint = None # ex. [[0,0],[0,0]]
+            self._halfedge = None # ex. diagram.addEdge()
         elif version == 'breakpoint':
             self._breakpoint = data1
             self._halfedge = data2
@@ -44,6 +44,8 @@ class BinTree:
         self._root = None
         self._size = 0
         self._height = 0
+        self._last = None
+        self._first = None
 
     def root(self):
         return self._root
@@ -62,6 +64,8 @@ class BinTree:
             self._root = Node(None, version, data1, data2)
             self._size = 1
             self._height = 1
+            self.first = self._root
+            self.last = self._root
             return self._root
         else:
             print("oops already has root")
@@ -217,6 +221,9 @@ class BinTree:
         depth = node._right.depth()
         if depth + 1 > self._height:
             self._height = depth + 1
+        if version == 'arc':
+            if node._right._site[0] > self._last._site[0]:
+                self._last = node._right
         return node._right
 
     def addLeft(self, node, version, data1, data2=None):
@@ -225,7 +232,16 @@ class BinTree:
         depth = node._left.depth()
         if depth + 1 > self._height:
             self._height = depth + 1
+        if version == 'arc':
+            if node._left._site[0] < self._first._site[0]:
+                self._first = node._left
         return node._left
     
     def isExternal(self, node):
         return node._right == None and node._left == None
+    
+    def isLast(self, node):
+        return self._last == node
+
+    def isFirst(self, node):
+        return self._first == node
