@@ -149,6 +149,8 @@ def handleCircleEvent(leaf):
 
 if __name__ == "__main__":
     diagram = makeDiagram([[0.3,0.7],[0.7,0.3]])
+    print(diagram)
+    print(status)
 
 """
 TODO
@@ -157,9 +159,7 @@ TODO
 
 """
 Possible bugs: 
-- Next leaf and prev leaf need to handle when there isn't a left leaf to an internal node
 - if the sites fed to the circle algorithm are colinear
-- getting next child of last node
 - null checking the methods of BinTree
 - circle event when arc is not under the site
 """

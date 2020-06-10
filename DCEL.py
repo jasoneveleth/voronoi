@@ -2,6 +2,9 @@ class Vertex:
     def __init__(self, coordinates):
         self._coordinates = coordinates
         self._incidentEdge = None
+    
+    def __str__(self):
+        return 'coordinates: ' + str(self._coordinates)
 
 class Face:
     def __init__(self):
@@ -14,8 +17,11 @@ class HalfEdge:
         self._origin = None
         self._twin = None
         self._incidentFace = None
-        self.next = None
-        self.prev = None
+        self._next = None
+        self._prev = None
+    
+    def __str__(self):
+        return 'origin: ' + str(self._origin)
 
 
 class DCEL:
@@ -60,3 +66,13 @@ class DCEL:
     def faces(self):
         return self._faces
 
+    def __str__(self):
+        string = 'HalfEdges: \n'
+        for i in self._edges:
+            string += str(i) + '\n'
+        string += "\nVertices:\n"
+        if len(self._vertices) == 0:
+            string += "none\n"
+        for i in self._vertices:
+            string += str(i)
+        return string

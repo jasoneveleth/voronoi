@@ -38,6 +38,32 @@ class Node:
             return self._site[0]
         else:
             return 'breakpoint'
+        
+    def fullprint(self, prefix='', isLast=True):
+        currLine = prefix
+        if isLast:
+            currLine += "`- *" + self._version + "* "
+            prefix += "   "
+        else:
+            currLine += "|- *" + self._version + "* "
+            prefix = "|  "
+        if self._version == 'breakpoint':
+            currLine += "breakpoint: " + str(self._breakpoint) + " halfedge: '" + str(self._halfedge) + "'\n"
+        else:
+            currLine += "site: " + str(self._site) + "\n"
+        if self._left != None:
+            if self._right != None:
+                currLine += self._left.fullprint(prefix, False)
+                currLine += self._right.fullprint(prefix, True)
+            else:
+                currLine += self._left.fullprint(prefix, True)
+        elif self._right != None:
+            currLine += self._right.fullprint(prefix, True)
+        return currLine
+
+    def __str__(self):
+        return self.fullprint()
+
 
 class BinTree:
     def __init__(self):
@@ -64,8 +90,8 @@ class BinTree:
             self._root = Node(None, version, data1, data2)
             self._size = 1
             self._height = 1
-            self.first = self._root
-            self.last = self._root
+            self._first = self._root
+            self._last = self._root
             return self._root
         else:
             print("oops already has root")
@@ -77,8 +103,7 @@ class BinTree:
     def findArc(self, site):
         node = self.root()
         while node._version != 'arc':
-            bp = node._breakpoint
-            intersection = self.intersect(bp, site[1])
+            intersection = self.intersect(node._breakpoint, site[1])
 
             if site[0] < intersection[0]:
                 node = node._left
@@ -176,19 +201,13 @@ class BinTree:
             p._right = None
         self._size -= 1
 
-    # def key(self, node, y):
-    #     if node._version == 'arc':
-    #         return node._site[0]
-    #     else:
-    #         i = self.intersect(node._breakpoint, y)
-    #         if len(i) == 1:
-    #             return i[0]
-    #         else:
-    #             return min(i[0], i[1])[0]
 
     def intersect(self, bp, l):
         p1 = bp[0]
         p2 = bp[1]
+
+        print(p1)
+        print(p2)
 
         a = 1.0/(2*(p1[1] - l)) - 1.0/(2*(p2[1] - l))
         b = float(p2[0])/(p2[1] - l) - float(p1[0])/(p1[1] - l)
@@ -222,7 +241,7 @@ class BinTree:
         if depth + 1 > self._height:
             self._height = depth + 1
         if version == 'arc':
-            if node._right._site[0] > self._last._site[0]:
+            if node._right._site[0] >= self._last._site[0]:
                 self._last = node._right
         return node._right
 
@@ -233,7 +252,7 @@ class BinTree:
         if depth + 1 > self._height:
             self._height = depth + 1
         if version == 'arc':
-            if node._left._site[0] < self._first._site[0]:
+            if node._left._site[0] <= self._first._site[0]:
                 self._first = node._left
         return node._left
     
@@ -245,3 +264,16 @@ class BinTree:
 
     def isFirst(self, node):
         return self._first == node
+    
+    def __str__(self):
+        return 'BinTree: \n' + str(self.root())
+
+    # def key(self, node, y):
+    #     if node._version == 'arc':
+    #         return node._site[0]
+    #     else:
+    #         i = self.intersect(node._breakpoint, y)
+    #         if len(i) == 1:
+    #             return i[0]
+    #         else:
+    #             return min(i[0], i[1])[0]
