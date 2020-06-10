@@ -20,8 +20,11 @@ class HalfEdge:
         self._next = None
         self._prev = None
     
+    def dest(self):
+        return self._twin._origin
+    
     def __str__(self):
-        return 'origin: ' + str(self._origin)
+        return 'origin: ' + str(self._origin) + 'dest: ' + str(self.dest())
 
 
 class DCEL:
