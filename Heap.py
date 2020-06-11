@@ -24,6 +24,12 @@ class Event:
         y = (1.0/d)*((a[0]**2 + a[1]**2)*(c[0] - b[0]) + (b[0]**2 + b[1]**2)*(a[0] - c[0]) + (c[0]**2 + c[1]**2)*(b[0] - a[0]))
         r = ((a[0]-x)**2 + (a[1]-y)**2)**0.5
         return [x,y-r]
+    
+    def __str__(self):
+        if self._kind == 'site event':
+            return "kind: '" + str(self._kind) + "', site: " + str(self._site)
+        else:
+            return "kind: '" + str(self._kind) + "', leaf: " + str(self._leaf) + ", point: " + str(self._point)
 
 class Heap:
     def __init__(self):
@@ -49,7 +55,7 @@ class Heap:
             self.downheap(last)
 
     def insert(self, kind, data, p1=None, p2=None, p3=None):
-        event = Event(self.size(), kind, data, p1=None, p2=None, p3=None)
+        event = Event(self.size(), kind, data, p1, p2, p3)
         self._array.append(event)
         self.upheap(event)
         self.downheap(event)
@@ -82,3 +88,11 @@ class Heap:
 
     def size(self):
         return len(self._array)
+    
+    def __str__(self):
+        if len(self._array) == 0:
+            return 'Heap:\nempty\n'
+        string = 'Heap:\n'
+        for i in self._array:
+            string += str(i) + '\n'
+        return string
