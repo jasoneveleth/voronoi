@@ -46,19 +46,18 @@ class Node:
             prefix += "   "
         else:
             currLine += "|- *" + self._version + "* "
-            prefix = "|  "
+            prefix += "|  "
         if self._version == 'breakpoint':
             currLine += "breakpoint: " + str(self._breakpoint) + " halfedge: '" + str(self._halfedge) + "'\n"
         else:
             currLine += "site: " + str(self._site) + "\n"
         if self._left != None:
             if self._right != None:
-                currLine += self._left.fullprint(prefix, False)
-                currLine += self._right.fullprint(prefix, True)
+                return currLine + self._left.fullprint(prefix, False) + self._right.fullprint(prefix, True)
             else:
-                currLine += self._left.fullprint(prefix, True)
+                return currLine + self._left.fullprint(prefix, True)
         elif self._right != None:
-            currLine += self._right.fullprint(prefix, True)
+            return currLine + self._right.fullprint(prefix, True)
         return currLine
 
     def __str__(self):
@@ -199,15 +198,16 @@ class BinTree:
             p._left = None
         else:
             p._right = None
+        if node == self._first:
+            self.resetFirst()
+        elif node == self._last:
+            self.resetLast()
         self._size -= 1
 
 
     def intersect(self, bp, l):
         p1 = bp[0]
         p2 = bp[1]
-
-        print(p1)
-        print(p2)
 
         a = 1.0/(2*(p1[1] - l)) - 1.0/(2*(p2[1] - l))
         b = float(p2[0])/(p2[1] - l) - float(p1[0])/(p1[1] - l)
@@ -241,8 +241,7 @@ class BinTree:
         if depth + 1 > self._height:
             self._height = depth + 1
         if version == 'arc':
-            if node._right._site[0] >= self._last._site[0]:
-                self._last = node._right
+            self.resetLast()
         return node._right
 
     def addLeft(self, node, version, data1, data2=None):
@@ -252,8 +251,7 @@ class BinTree:
         if depth + 1 > self._height:
             self._height = depth + 1
         if version == 'arc':
-            if node._left._site[0] <= self._first._site[0]:
-                self._first = node._left
+            self.resetFirst()
         return node._left
     
     def isExternal(self, node):
@@ -267,6 +265,22 @@ class BinTree:
     
     def __str__(self):
         return 'BinTree: \n' + str(self.root())
+
+    def resetFirst(self):
+        node = self.root()
+        while node._left != None:
+            node = node._left
+        self._first = node
+        if node._version != 'arc':
+            print('the tree has a breakpoint first')
+
+    def resetLast(self):
+        node = self.root()
+        while node._right != None:
+            node = node._right
+        self._last = node
+        if node._version != 'arc':
+            print('the tree has a breakpoint last')
 
     # def key(self, node, y):
     #     if node._version == 'arc':

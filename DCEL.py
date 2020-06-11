@@ -24,7 +24,7 @@ class HalfEdge:
         return self._twin._origin
     
     def __str__(self):
-        return 'origin: ' + str(self._origin) + 'dest: ' + str(self.dest())
+        return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest()) + ', next: ' + str(self._next) + ', prev: ' + str(self._prev)
 
 
 class DCEL:

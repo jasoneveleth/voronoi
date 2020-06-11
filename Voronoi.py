@@ -1,6 +1,7 @@
 from BinTree import BinTree
 from DCEL import DCEL
 from Heap import Heap
+from random import random
 
 events = Heap()
 status = BinTree()
@@ -75,10 +76,12 @@ def handleCircleEvent(leaf):
     # readjusting tree
     if status.isLeftChild(parent):
         grandparent._left = parent._left
+        grandparent._breakpoint = [parent._breakpoint[0], grandparent._breakpoint[1]]
     else:
         grandparent._right = parent._right
-        
-    grandparent._breakpoint = [parent._breakpoint[0], grandparent._breakpoint[1]]
+        grandparent._breakpoint = [grandparent._breakpoint[0], parent._breakpoint[1]]
+    
+    status._size -= 1
 
     # remove false alarm circle events
     if nextLeaf._event != None:
@@ -89,7 +92,7 @@ def handleCircleEvent(leaf):
         prevLeaf._event = None
 
     # getting point and making vertex
-    coord = leaf._event._point
+    coord = circle(prevLeaf._site, leaf._site, nextLeaf._site)
     vert = diagram.addVertex(coord)
 
     # making edges
@@ -147,8 +150,24 @@ def handleCircleEvent(leaf):
         toRight = status.nextLeaf(nextLeaf)
         checkNewCircle(prevLeaf, nextLeaf, toRight)
 
+def rand():
+    return round(random()*100)/100.0
+
+def circle(a, b, c):
+    d = 2*(a[0]*(b[1]-c[1]) + b[0]*(c[1]-a[1]) + c[0]*(a[1]-b[1]))
+    x = (1.0/d)*((a[0]**2 + a[1]**2)*(b[1] - c[1]) + (b[0]**2 + b[1]**2)*(c[1] - a[1]) + (c[0]**2 + c[1]**2)*(a[1] - b[1]))
+    y = (1.0/d)*((a[0]**2 + a[1]**2)*(c[0] - b[0]) + (b[0]**2 + b[1]**2)*(a[0] - c[0]) + (c[0]**2 + c[1]**2)*(b[0] - a[0]))
+    return [x,y]
+
 if __name__ == "__main__":
-    diagram = makeDiagram([[0.3,0.7],[0.7,0.3]])
+    # diagram = makeDiagram([[0.3,0.7],[0.7,0.3],[0.5,0.6]])
+    # print(diagram)
+    # print(status)
+    points = []
+    for i in range(4):
+        points.append([rand(),rand()])
+    print(points)
+    diagram = makeDiagram(points)
     print(diagram)
     print(status)
 
