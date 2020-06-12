@@ -50,7 +50,7 @@ class Node:
         if self._version == 'breakpoint':
             currLine += "breakpoint: " + str(self._breakpoint) + " halfedge: '" + str(self._halfedge) + "'\n"
         else:
-            currLine += "site: " + str(self._site) + "\n"
+            currLine += "site: {}\n".format(str(self._site))
         if self._left != None:
             if self._right != None:
                 return currLine + self._left.fullprint(prefix, False) + self._right.fullprint(prefix, True)
@@ -281,13 +281,3 @@ class BinTree:
         self._last = node
         if node._version != 'arc':
             print('the tree has a breakpoint last')
-
-    # def key(self, node, y):
-    #     if node._version == 'arc':
-    #         return node._site[0]
-    #     else:
-    #         i = self.intersect(node._breakpoint, y)
-    #         if len(i) == 1:
-    #             return i[0]
-    #         else:
-    #             return min(i[0], i[1])[0]

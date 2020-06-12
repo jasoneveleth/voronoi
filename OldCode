@@ -157,3 +157,14 @@ PREVLEAF
         if (predessesor._left == None) and (predessesor._right == None):
             return predessesor
         else:
+
+BINTREE - getting key of each node
+    # def key(self, node, y):
+    #     if node._version == 'arc':
+    #         return node._site[0]
+    #     else:
+    #         i = self.intersect(node._breakpoint, y)
+    #         if len(i) == 1:
+    #             return i[0]
+    #         else:
+    #             return min(i[0], i[1])[0]

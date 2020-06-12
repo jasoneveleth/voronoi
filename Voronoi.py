@@ -29,7 +29,7 @@ class Voronoi:
         # TODO the remaining internal nodes of BinTree are infinite half edges
         # TODO compute a box and attach half-infinite edges to boudning box by updating appropriately
         # TODO traverse the half edges to add the cell records and the pointers to and from them
-        
+
 
     def handleSiteEvent(self, event):
         if self._status.empty():
@@ -183,12 +183,12 @@ def testNumPoints(n):
     print(diagram._status)
 
 if __name__ == "__main__":
-    diagram = Voronoi([[0.3,0.7],[0.7,0.3]])
-    print(diagram._edgelist)
-    print(diagram._status)
-    # diagram = Voronoi([[0.2,0.4],[0.4,0.8],[0.7,0.3]])
+    # diagram = Voronoi([[0.3,0.7],[0.7,0.3]])
     # print(diagram._edgelist)
     # print(diagram._status)
+    diagram = Voronoi([[0.2,0.4],[0.4,0.8],[0.7,0.3]])
+    print(diagram._edgelist)
+    print(diagram._status)
     # testNumPoints(4)
 
 

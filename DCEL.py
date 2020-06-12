@@ -31,7 +31,7 @@ class DCEL:
         self._vertices = []
     
     def contains(self, ele):
-        return ele in self._edges or ele in self._vertices or ele in self._faces
+        return ele in self._edges or ele in self._vertices
     
     def incidentEdges(self, vertex):
         incidentEdges = []
