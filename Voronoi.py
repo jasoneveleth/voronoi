@@ -29,8 +29,6 @@ class Voronoi:
         # TODO the remaining internal nodes of BinTree are infinite half edges
         # TODO compute a box and attach half-infinite edges to boudning box by updating appropriately
         # TODO traverse the half edges to add the cell records and the pointers to and from them
-
-
         
 
     def handleSiteEvent(self, event):

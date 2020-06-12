@@ -6,11 +6,6 @@ class Vertex:
     def __str__(self):
         return 'coordinates: ' + str(self._coordinates)
 
-class Face:
-    def __init__(self):
-        self._outerComponent = None
-        self._innerComponent = []
-
 
 class HalfEdge:
     def __init__(self):
@@ -34,7 +29,6 @@ class DCEL:
     def __init__(self):
         self._edges = []
         self._vertices = []
-        self._faces = []
     
     def contains(self, ele):
         return ele in self._edges or ele in self._vertices or ele in self._faces
@@ -69,8 +63,6 @@ class DCEL:
     def vertices(self):
         return self._vertices
 
-    def faces(self):
-        return self._faces
 
     def __str__(self):
         string = 'HalfEdges: \n'
