@@ -2,6 +2,7 @@ from BinTree import BinTree
 from DCEL import DCEL
 from Heap import Heap
 from random import random
+from functools import reduce
 
 class Voronoi:
     def __init__(self, points):
@@ -20,9 +21,16 @@ class Voronoi:
                 self.handleSiteEvent(event)
             else:
                 self.handleCircleEvent(event._leaf)
+        # self.finishDiagram(points)
+
+    def finishDiagram(self, points):
+        pass
+        
         # TODO the remaining internal nodes of BinTree are infinite half edges
         # TODO compute a box and attach half-infinite edges to boudning box by updating appropriately
         # TODO traverse the half edges to add the cell records and the pointers to and from them
+
+
         
 
     def handleSiteEvent(self, event):
@@ -63,7 +71,12 @@ class Voronoi:
         
 
     def handleCircleEvent(self, leaf):
+        print(self._status)
+        print(str(leaf)[3:-1])
+        # print(str(nextLeaf)[3:-1])
+        # print(str(prevLeaf)[3:-1])
         self._status.remove(leaf)
+        print(self._status)
         nextLeaf = self._status.nextLeaf(leaf)
         prevLeaf = self._status.prevLeaf(leaf)
         parent = leaf._parent
@@ -87,7 +100,6 @@ class Voronoi:
             self._events.remove(prevLeaf._event)
             prevLeaf._event = None
 
-        print(self._status)
 
         # getting point and making vertex
         coord = self.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
@@ -173,12 +185,12 @@ def testNumPoints(n):
     print(diagram._status)
 
 if __name__ == "__main__":
-    # self._edgelist = makeself._edgelist([[0.3,0.7],[0.7,0.3]])
-    # print(self._edgelist)
-    # print(self._status)
-    diagram = Voronoi([[0.2,0.4],[0.4,0.8],[0.7,0.3]])
+    diagram = Voronoi([[0.3,0.7],[0.7,0.3]])
     print(diagram._edgelist)
     print(diagram._status)
+    # diagram = Voronoi([[0.2,0.4],[0.4,0.8],[0.7,0.3]])
+    # print(diagram._edgelist)
+    # print(diagram._status)
     # testNumPoints(4)
 
 

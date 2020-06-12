@@ -27,9 +27,9 @@ class Event:
     
     def __str__(self):
         if self._kind == 'site event':
-            return "kind: '" + str(self._kind) + "', site: " + str(self._site)
+            return "kind: '{}' site: {}".format(str(self._kind), str(self._site))
         else:
-            return "kind: '" + str(self._kind) + "', leaf: " + str(self._leaf) + ", point: " + str(self._point)
+            return "kind: '{}' leaf: {} point: {}".format(str(self._kind), str(self._leaf), str(self._point))
 
 class Heap:
     def __init__(self):

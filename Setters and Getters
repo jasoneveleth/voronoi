@@ -109,3 +109,42 @@ NODE
 
     # def parent(self):
     #     return self._parent
+
+
+COLINEAR
+    # def colinear(self, points):
+    #     if len(points) == 2:
+    #         return True
+    #     if points[0][0] == points[1][0]:
+    #         func = lambda acc,x: acc if x - points[0][0] == acc else 1 + acc
+    #         return reduce(func, points, 0) == 0
+    #     vector = []
+    #     vector.append(points[1][0] - points[0][0])
+    #     vector.append(points[1][1] - points[0][1])
+    #     for p in points[2:]:
+    #         if p[0]:
+    #             # TODO
+    #             pass
+    #     return True
+
+
+BOUNDING BOX
+    # def computeBounds(self):
+    #     vertices = self._edgelist.vertices()
+    #     if len(vertices) == 0:
+    #         return [0,1,0,1]
+    #     minX = float('inf')
+    #     maxX = float('-inf')
+    #     minY = float('inf')
+    #     maxY = float('-inf')
+    #     for v in vertices:
+    #         if maxX < v._coordinates[0]:
+    #             maxX = v._coordinates[0]
+    #         if maxY < v._coordinates[1]:
+    #             maxY = v._coordinates[1]
+    #         if minX > v._coordinates[0]:
+    #             minX = v._coordinates[0]
+    #         if minY > v._coordinates[1]:
+    #             minY = v._coordinates[1]
+
+    #     return [minX, maxX, minY, maxY]
