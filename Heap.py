@@ -77,7 +77,7 @@ class Heap:
             self.swap(event, self.parent(event))
 
     def parent(self, event):
-        return self._array[ceil(event._index/2.0) - 1]
+        return self._array[int(ceil(event._index/2.0) - 1)]
     
     def maxChild(self, event):
         if self.size() <= 2 * event._index + 2:

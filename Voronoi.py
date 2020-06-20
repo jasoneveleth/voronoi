@@ -25,7 +25,6 @@ class Voronoi:
 
     def finishDiagram(self, points):
         pass
-        
         # TODO the remaining internal nodes of BinTree are infinite half edges
         # TODO compute a box and attach half-infinite edges to boudning box by updating appropriately
         # TODO traverse the half edges to add the cell records and the pointers to and from them
@@ -69,14 +68,9 @@ class Voronoi:
         
 
     def handleCircleEvent(self, leaf):
-        print(self._status)
-        print(str(leaf)[3:-1])
-        # print(str(nextLeaf)[3:-1])
-        # print(str(prevLeaf)[3:-1])
-        self._status.remove(leaf)
-        print(self._status)
         nextLeaf = self._status.nextLeaf(leaf)
         prevLeaf = self._status.prevLeaf(leaf)
+        self._status.remove(leaf)
         parent = leaf._parent
         grandparent = parent._parent
 
@@ -103,7 +97,7 @@ class Voronoi:
         coord = self.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
         vert = self._edgelist.addVertex(coord)
 
-        # making edges
+        # making new edge
         newHalf = self._edgelist.addEdge()
         newHalf._twin = self._edgelist.addEdge()
         newHalf._twin._twin = newHalf
@@ -153,10 +147,12 @@ class Voronoi:
         # check for circle self._events
         if not self._status.isFirst(prevLeaf):
             toLeft = self._status.prevLeaf(prevLeaf)
-            self.checkNewCircle(toLeft, prevLeaf, nextLeaf)
+            if toLeft is not None:
+                self.checkNewCircle(toLeft, prevLeaf, nextLeaf)
         if not self._status.isLast(nextLeaf):
             toRight = self._status.nextLeaf(nextLeaf)
-            self.checkNewCircle(prevLeaf, nextLeaf, toRight)
+            if toRight is not None:
+                self.checkNewCircle(prevLeaf, nextLeaf, toRight)
 
     def checkNewCircle(self, left, center, right):
         if center._site[1] >= right._site[1] and center._site[1] >= left._site[1]:
@@ -164,7 +160,7 @@ class Voronoi:
             center._event = e
 
     def circleCenter(self, a, b, c):
-        print('a: ' + str(a) + ' b: ' + str(b) + ' c: ' + str(c))
+        # print('a: ' + str(a) + ' b: ' + str(b) + ' c: ' + str(c))
         d = 2*(a[0]*(b[1]-c[1]) + b[0]*(c[1]-a[1]) + c[0]*(a[1]-b[1]))
         x = (1.0/d)*((a[0]**2 + a[1]**2)*(b[1] - c[1]) + (b[0]**2 + b[1]**2)*(c[1] - a[1]) + (c[0]**2 + c[1]**2)*(a[1] - b[1]))
         y = (1.0/d)*((a[0]**2 + a[1]**2)*(c[0] - b[0]) + (b[0]**2 + b[1]**2)*(a[0] - c[0]) + (c[0]**2 + c[1]**2)*(b[0] - a[0]))
@@ -179,18 +175,19 @@ def testNumPoints(n):
         points.append([rand(),rand()])
     print(points)
     diagram = Voronoi(points)
-    print(diagram._edgelist)
-    print(diagram._status)
+    # print("diagram has been made!!!!!!!")
+    # print(diagram._edgelist)
+    # print(diagram._status)
 
 if __name__ == "__main__":
     # diagram = Voronoi([[0.3,0.7],[0.7,0.3]])
     # print(diagram._edgelist)
     # print(diagram._status)
-    diagram = Voronoi([[0.2,0.4],[0.4,0.8],[0.7,0.3]])
-    print(diagram._edgelist)
-    print(diagram._status)
-    # testNumPoints(4)
-
+    # print('HERE IS DIVISION')
+    # diagram = Voronoi([[0.2,0.4],[0.4,0.8],[0.7,0.3]])
+    # print(diagram._edgelist)
+    # print(diagram._status)
+    testNumPoints(4)
 
 """
 Possible bugs: 

@@ -167,7 +167,10 @@ class BinTree:
         
     def nextLeaf(self, node):
         successor = self.successor(node)
-        return self.lowestLeaf(successor._right)
+        if successor:
+            return self.lowestLeaf(successor._right)
+        else:
+            return None
     
     def lowestLeaf(self, node):
         if node._left != None:
@@ -179,7 +182,10 @@ class BinTree:
 
     def prevLeaf(self, node):
         predessesor = self.predessesor(node)
-        return self.highestLeaf(predessesor._left)
+        if predessesor:
+            return self.highestLeaf(predessesor._left)
+        else:
+            return None
     
     def highestLeaf(self, node):
         if node._right != None:
@@ -216,7 +222,7 @@ class BinTree:
         if a == 0:
             x1 = - c/b
             y1 = 1.0/(2*(p1[1] - l))*(x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2)
-            return [[x1,y1]]
+            return [x1,y1]
 
         x1 = (- b + (b**2 - 4*a*c)**0.5)/(2*a)
         y1 = 1.0/(2*(p1[1] - l))*(x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2)

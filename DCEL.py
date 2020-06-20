@@ -19,10 +19,10 @@ class HalfEdge:
         return self._twin._origin
     
     def __str__(self):
-        # return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest())
+        return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest())
         # return 'object: ' + repr(self) + ', origin: ' + str(self._origin) + ', dest: ' + str(self.dest()) + ', twin: ' + repr(self._twin)
-        return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest()) + ', next: ' + str(self._next) + ', prev: ' + str(self._prev)
-        # return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest()) + ', next: ' + str(self._next) + ', prev: ' + str(self._prev) + ', twin: ' + repr(self._twin)
+        # return 'origin: ' + str(self._origin) + ', dest: ' + repr(self.dest()) + ', next: ' + repr(self._next) + ', prev: ' + repr(self._prev)
+        # return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest()) + ', next: ' + repr(self._next) + ', prev: ' + repr(self._prev) + ', twin: ' + repr(self._twin)
 
 
 class DCEL:
