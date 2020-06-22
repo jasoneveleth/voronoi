@@ -101,14 +101,17 @@ class BinTree:
 
     def findArc(self, site):
         node = self.root()
+        print()
+        print(' . . . searching')
+        print('site: {}'.format(str(site)))
         while node._version != 'arc':
             intersection = self.intersect(node._breakpoint, site[1])
-
+            print('intersection: {}'.format(str(intersection)))
             if site[0] < intersection[0]:
                 node = node._left
             else:
                 node = node._right
-
+        print('found node: {}'.format(str(node)))
         return node
     
     def isRightChild(self, node):
@@ -229,13 +232,13 @@ class BinTree:
         x2 = (- b - (b**2 - 4*a*c)**0.5)/(2*a)
         y2 = 1.0/(2*(p1[1] - l))*(x2**2 - 2*p1[0]*x2 + p1[0]**2 + p1[1]**2 - l**2)
         if x1 > x2:
-            larger = [x1, y2]
+            larger = [x1,y1]
             smaller = [x2,y2]
         else:
-            larger = [x2, y2]
-            smaller = [x1, y2]
+            larger = [x2,y2]
+            smaller = [x1,y1]
 
-        if bp[0][0] > bp[1][0]:
+        if p1[1] < p2[1]: # this makes no sense, but play with parabolas
             return larger
         else:
             return smaller

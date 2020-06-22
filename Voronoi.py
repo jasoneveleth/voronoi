@@ -31,6 +31,7 @@ class Voronoi:
 
 
     def handleSiteEvent(self, event):
+        print('handle site event {}'.format(self._status))
         if self._status.empty():
             self._status.addRoot('arc', event._site, None)
             return
@@ -68,11 +69,15 @@ class Voronoi:
         
 
     def handleCircleEvent(self, leaf):
+        print('handle circle event {}'.format(str(self._status)))
         nextLeaf = self._status.nextLeaf(leaf)
         prevLeaf = self._status.prevLeaf(leaf)
-        self._status.remove(leaf)
         parent = leaf._parent
         grandparent = parent._parent
+        self._status.remove(leaf)
+
+        parentSites = parent._breakpoint
+        grandSites = grandparent._breakpoint
 
         # readjusting tree
         if self._status.isLeftChild(parent):
@@ -92,7 +97,7 @@ class Voronoi:
             self._events.remove(prevLeaf._event)
             prevLeaf._event = None
 
-
+        print(prevLeaf._site, leaf._site, nextLeaf._site)
         # getting point and making vertex
         coord = self.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
         vert = self._edgelist.addVertex(coord)
@@ -110,12 +115,12 @@ class Voronoi:
         oldHalfParent = parent._halfedge
         oldHalfGrand = grandparent._halfedge
         grandparent._halfedge = newHalf
-        if oldHalfParent._origin != None:
+        if oldHalfParent._origin is None:
             oldHalfParent._origin = coord
         else:
             oldHalfParent._twin._origin = coord
 
-        if oldHalfGrand._origin != None:
+        if oldHalfGrand._origin is None:
             oldHalfGrand._origin = coord
         else:
             oldHalfGrand._twin._origin = coord
@@ -143,6 +148,11 @@ class Voronoi:
                 oldHalfParent._twin._next = oldHalfGrand._twin
                 oldHalfGrand._next = oldHalfParent
                 oldHalfGrand._twin._prev = oldHalfParent._twin
+
+        if oldHalfParent._twin._origin is None:
+            oldHalfParent._twin._origin = self.getBeginning(coord, parentSites[0], parentSites[1])        
+        if oldHalfGrand._twin._origin is None:
+            oldHalfGrand._twin._origin = self.getBeginning(coord, grandSites[0], grandSites[1])
 
         # check for circle self._events
         if not self._status.isFirst(prevLeaf):
@@ -185,6 +195,9 @@ if __name__ == "__main__":
     # print(diagram._status)
     # print('HERE IS DIVISION')
     # diagram = Voronoi([[0.2,0.4],[0.4,0.8],[0.7,0.3]])
+    # print(diagram._edgelist)
+    # print(diagram._status)
+    # diagram = Voronoi([[0.56, 0.69], [0.36, 0.6], [0.42, 0.32], [0.3, 0.62]])
     # print(diagram._edgelist)
     # print(diagram._status)
     testNumPoints(4)
