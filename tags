@@ -33,13 +33,14 @@ __str__	DCEL.py	/^    def __str__(self):$/;"	m	class:HalfEdge	file:
 __str__	DCEL.py	/^    def __str__(self):$/;"	m	class:Vertex	file:
 __str__	Heap.py	/^    def __str__(self):$/;"	m	class:Event	file:
 __str__	Heap.py	/^    def __str__(self):$/;"	m	class:Heap	file:
-addEdge	DCEL.py	/^    def addEdge(self):$/;"	m	class:DCEL
+addEdge	DCEL.py	/^    def addEdge(self, point, site1, site2):$/;"	m	class:DCEL
 addLeft	BinTree.py	/^    def addLeft(self, node, version, data1, data2=None):$/;"	m	class:BinTree
 addLeft	BinTree.py	/^    def addLeft(self, version, data1, data2):$/;"	m	class:Node
 addRight	BinTree.py	/^    def addRight(self, node, version, data1, data2=None):$/;"	m	class:BinTree
 addRight	BinTree.py	/^    def addRight(self, version, data1, data2):$/;"	m	class:Node
 addRoot	BinTree.py	/^    def addRoot(self, version, data1, data2):$/;"	m	class:BinTree
 addVertex	DCEL.py	/^    def addVertex(self, xy):$/;"	m	class:DCEL
+assignAdjacency	DCEL.py	/^    def assignAdjacency(self, coord, edge1, edge2):$/;"	m	class:DCEL
 ceil	Heap.py	/^from math import ceil$/;"	i
 checkNewCircle	Voronoi.py	/^    def checkNewCircle(self, left, center, right):$/;"	m	class:Voronoi
 circleCenter	Voronoi.py	/^    def circleCenter(self, a, b, c):$/;"	m	class:Voronoi
@@ -49,6 +50,7 @@ depth	BinTree.py	/^    def depth(self):$/;"	m	class:Node
 dest	DCEL.py	/^    def dest(self):$/;"	m	class:HalfEdge
 dest	DCEL.py	/^    def dest(self, edge):$/;"	m	class:DCEL
 downheap	Heap.py	/^    def downheap(self, event):$/;"	m	class:Heap
+e	Test.py	/^e = Event('site event', 'nothing', 'nothing')$/;"	v
 edges	DCEL.py	/^    def edges(self):$/;"	m	class:DCEL
 empty	BinTree.py	/^    def empty(self):$/;"	m	class:BinTree
 empty	Heap.py	/^    def empty(self):$/;"	m	class:Heap
@@ -64,7 +66,7 @@ height	BinTree.py	/^    def height(self):$/;"	m	class:BinTree
 highestLeaf	BinTree.py	/^    def highestLeaf(self, node):$/;"	m	class:BinTree
 incidentEdges	DCEL.py	/^    def incidentEdges(self, vertex):$/;"	m	class:DCEL
 insert	Heap.py	/^    def insert(self, kind, data, p1=None, p2=None, p3=None):$/;"	m	class:Heap
-intersect	BinTree.py	/^    def intersect(self, bp, l):$/;"	m	class:BinTree
+intersect	BinTree.py	/^    def intersect(self, breakpoint, l):$/;"	m	class:BinTree
 isExternal	BinTree.py	/^    def isExternal(self, node):$/;"	m	class:BinTree
 isFirst	BinTree.py	/^    def isFirst(self, node):$/;"	m	class:BinTree
 isLast	BinTree.py	/^    def isLast(self, node):$/;"	m	class:BinTree
@@ -90,7 +92,7 @@ n8	Test.py	/^n8 = tree.addRight(n3, 'arc', None, None)$/;"	v
 n9	Test.py	/^n9 = tree.addLeft(n4, 'arc', None, None)$/;"	v
 nextLeaf	BinTree.py	/^    def nextLeaf(self, node):$/;"	m	class:BinTree
 parent	Heap.py	/^    def parent(self, event):$/;"	m	class:Heap
-predessesor	BinTree.py	/^    def predessesor(self, node):$/;"	m	class:BinTree
+predecessor	BinTree.py	/^    def predecessor(self, node):$/;"	m	class:BinTree
 prevLeaf	BinTree.py	/^    def prevLeaf(self, node):$/;"	m	class:BinTree
 rand	Voronoi.py	/^def rand():$/;"	f
 random	Test.py	/^from random import random$/;"	i
@@ -99,6 +101,7 @@ reduce	Voronoi.py	/^from functools import reduce$/;"	i
 remove	BinTree.py	/^    def remove(self, node):$/;"	m	class:BinTree
 remove	Heap.py	/^    def remove(self, event):$/;"	m	class:Heap
 removeMax	Heap.py	/^    def removeMax(self):$/;"	m	class:Heap
+replace	BinTree.py	/^    def replace(self, old, new):$/;"	m	class:BinTree
 resetFirst	BinTree.py	/^    def resetFirst(self):$/;"	m	class:BinTree
 resetLast	BinTree.py	/^    def resetLast(self):$/;"	m	class:BinTree
 root	BinTree.py	/^    def root(self):$/;"	m	class:BinTree

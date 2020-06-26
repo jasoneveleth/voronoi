@@ -21,14 +21,18 @@ class Voronoi:
                 self.handleSiteEvent(event)
             else:
                 self.handleCircleEvent(event._leaf)
-        # self.finishDiagram(points)
+        self.finishDiagram(points)
 
     def finishDiagram(self, points):
-        pass
+        for e in self._edgelist.edges():
+            if e._origin is None:
+                e._origin = [e._point[0] + e._vector[0], e._point[1] + e._vector[1]]
+
         # TODO the remaining internal nodes of BinTree are infinite half edges
         # TODO compute a box and attach half-infinite edges to boudning box by updating appropriately
         # TODO traverse the half edges to add the cell records and the pointers to and from them
 
+        # HANDLE WHEN THE LEFTOVER HALFEDGE IS A FULL LINE WITH JUST THE NORMAL INTERSECTION
 
     def handleSiteEvent(self, event):
         print('handle site event {}'.format(self._status))
@@ -45,9 +49,10 @@ class Voronoi:
         # add subtree
         oldNode._version = 'breakpoint'
         oldNode._breakpoint = [oldNode._site, event._site]
-        oldNode._halfedge = self._edgelist.addEdge()
+        point = [event._site[0], (1.0/(2*(oldNode._site[1] - event._site[1]))) * (event._site[0] - oldNode._site[0])**2 + (oldNode._site[1] + event._site[1])/2.0]
+        oldNode._halfedge = self._edgelist.addEdge(point, oldNode._site, event._site)
 
-        newBreakpoint = self._status.addRight(oldNode, 'breakpoint', [event._site, oldNode._site], self._edgelist.addEdge())
+        newBreakpoint = self._status.addRight(oldNode, 'breakpoint', [event._site, oldNode._site], oldNode._halfedge._twin)
         oldArcLeft = self._status.addLeft(oldNode, 'arc', oldNode._site)
         newArc = self._status.addLeft(newBreakpoint, 'arc', event._site)
         oldArcRight = self._status.addRight(newBreakpoint, 'arc', oldNode._site)
@@ -58,7 +63,7 @@ class Voronoi:
         oldNode._halfedge._twin = newBreakpoint._halfedge
         newBreakpoint._halfedge._twin = oldNode._halfedge
         
-        # check for new circle self._events
+        # check for new circle events
         if not self._status.isFirst(oldArcLeft):
             toLeft = self._status.prevLeaf(oldArcLeft)
             self.checkNewCircle(toLeft, oldArcLeft, newArc)
@@ -72,23 +77,24 @@ class Voronoi:
         print('handle circle event {}'.format(str(self._status)))
         nextLeaf = self._status.nextLeaf(leaf)
         prevLeaf = self._status.prevLeaf(leaf)
-        parent = leaf._parent
-        grandparent = parent._parent
+        nextBreakpoint = self._status.successor(leaf)
+        prevBreakpoint = self._status.predecessor(leaf)
         self._status.remove(leaf)
 
-        parentSites = parent._breakpoint
-        grandSites = grandparent._breakpoint
-
         # readjusting tree
-        if self._status.isLeftChild(parent):
-            grandparent._left = parent._left
-            grandparent._breakpoint = [parent._breakpoint[0], grandparent._breakpoint[1]]
+        print('stuff')
+        print(nextLeaf._parent)
+        print(prevLeaf._parent)
+        print(leaf._parent)
+        if nextLeaf._parent == leaf._parent:
+            self._status.replace(nextBreakpoint, nextLeaf)
+            prevBreakpoint._breakpoint[1] = nextLeaf._site
+        elif prevLeaf._parent == leaf._parent:
+            self._status.replace(prevBreakpoint, prevLeaf)
+            nextBreakpoint._breakpoint[1] = prevLeaf._site
         else:
-            grandparent._right = parent._right
-            grandparent._breakpoint = [grandparent._breakpoint[0], parent._breakpoint[1]]
-        
-        self._status._size -= 1
-
+            print('our assumptions were wrong, our worst fear')
+            
         # remove false alarm circle self._events
         if nextLeaf._event != None:
             self._events.remove(nextLeaf._event)
@@ -103,56 +109,32 @@ class Voronoi:
         vert = self._edgelist.addVertex(coord)
 
         # making new edge
-        newHalf = self._edgelist.addEdge()
-        newHalf._twin = self._edgelist.addEdge()
-        newHalf._twin._twin = newHalf
+        newHalf = self._edgelist.addEdge(coord, prevLeaf._site, nextLeaf._site)
         newHalf._origin = coord
 
         # it needs one incident edge
         vert._incidentEdge = newHalf
 
         # adding origin
-        oldHalfParent = parent._halfedge
-        oldHalfGrand = grandparent._halfedge
-        grandparent._halfedge = newHalf
-        if oldHalfParent._origin is None:
-            oldHalfParent._origin = coord
+        oldLeftEdge = prevBreakpoint._halfedge
+        oldRightEdge = nextBreakpoint._halfedge
+        if nextBreakpoint._version is not 'arc':
+            nextBreakpoint._halfedge = newHalf
         else:
-            oldHalfParent._twin._origin = coord
+            prevBreakpoint._halfedge = newHalf
 
-        if oldHalfGrand._origin is None:
-            oldHalfGrand._origin = coord
+        if oldLeftEdge._origin is None:
+            oldLeftEdge._origin = coord
         else:
-            oldHalfGrand._twin._origin = coord
+            oldLeftEdge._twin._origin = coord
 
-        # adding next and prev to the edges that are leaving
-        if oldHalfParent._origin != coord:
-            if oldHalfGrand._origin != coord:
-                oldHalfParent._next = oldHalfGrand._twin
-                oldHalfParent._twin._prev = oldHalfGrand
-                oldHalfGrand._next = oldHalfParent._twin
-                oldHalfGrand._twin._prev = oldHalfParent
-            else:
-                oldHalfParent._next = oldHalfGrand
-                oldHalfParent._twin._prev = oldHalfGrand._twin
-                oldHalfGrand._prev = oldHalfParent
-                oldHalfGrand._twin._next = oldHalfParent._twin
+        if oldRightEdge._origin is None:
+            oldRightEdge._origin = coord
         else:
-            if oldHalfGrand._origin != coord:
-                oldHalfParent._prev = oldHalfGrand._twin
-                oldHalfParent._twin._next = oldHalfGrand
-                oldHalfGrand._prev = oldHalfParent._twin
-                oldHalfGrand._twin._next = oldHalfParent
-            else:
-                oldHalfParent._prev = oldHalfGrand
-                oldHalfParent._twin._next = oldHalfGrand._twin
-                oldHalfGrand._next = oldHalfParent
-                oldHalfGrand._twin._prev = oldHalfParent._twin
+            oldRightEdge._twin._origin = coord
 
-        if oldHalfParent._twin._origin is None:
-            oldHalfParent._twin._origin = self.getBeginning(coord, parentSites[0], parentSites[1])        
-        if oldHalfGrand._twin._origin is None:
-            oldHalfGrand._twin._origin = self.getBeginning(coord, grandSites[0], grandSites[1])
+        # assign next and previous
+        self._edgelist.assignAdjacency(coord, prevBreakpoint, nextBreakpoint)
 
         # check for circle self._events
         if not self._status.isFirst(prevLeaf):
@@ -170,7 +152,7 @@ class Voronoi:
             center._event = e
 
     def circleCenter(self, a, b, c):
-        # print('a: ' + str(a) + ' b: ' + str(b) + ' c: ' + str(c))
+        print('a: ' + str(a) + ' b: ' + str(b) + ' c: ' + str(c))
         d = 2*(a[0]*(b[1]-c[1]) + b[0]*(c[1]-a[1]) + c[0]*(a[1]-b[1]))
         x = (1.0/d)*((a[0]**2 + a[1]**2)*(b[1] - c[1]) + (b[0]**2 + b[1]**2)*(c[1] - a[1]) + (c[0]**2 + c[1]**2)*(a[1] - b[1]))
         y = (1.0/d)*((a[0]**2 + a[1]**2)*(c[0] - b[0]) + (b[0]**2 + b[1]**2)*(a[0] - c[0]) + (c[0]**2 + c[1]**2)*(b[0] - a[0]))
@@ -181,8 +163,13 @@ def rand():
 
 def testNumPoints(n):
     points = []
+    yvalues = []
     for _ in range(n):
-        points.append([rand(),rand()])
+        a = rand()
+        while a in yvalues:
+            a = rand()
+        yvalues.append(a)
+        points.append([rand(),a])
     print(points)
     diagram = Voronoi(points)
     # print("diagram has been made!!!!!!!")
@@ -190,17 +177,17 @@ def testNumPoints(n):
     # print(diagram._status)
 
 if __name__ == "__main__":
-    # diagram = Voronoi([[0.3,0.7],[0.7,0.3]])
-    # print(diagram._edgelist)
-    # print(diagram._status)
+    diagram = Voronoi([[0.3,0.7],[0.7,0.3]])
+    print(diagram._edgelist)
+    print(diagram._status)
     # print('HERE IS DIVISION')
     # diagram = Voronoi([[0.2,0.4],[0.4,0.8],[0.7,0.3]])
     # print(diagram._edgelist)
     # print(diagram._status)
-    # diagram = Voronoi([[0.56, 0.69], [0.36, 0.6], [0.42, 0.32], [0.3, 0.62]])
+    # diagram = Voronoi([[0.86, 0.37], [0.38, 0.21], [0.1, 0.51], [0.81, 0.68]])
     # print(diagram._edgelist)
     # print(diagram._status)
-    testNumPoints(4)
+    # testNumPoints(4)
 
 """
 Possible bugs: 

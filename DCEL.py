@@ -14,15 +14,14 @@ class HalfEdge:
         self._incidentFace = None
         self._next = None
         self._prev = None
+        self._point = None
+        self._vector = None
     
     def dest(self):
         return self._twin._origin
     
     def __str__(self):
         return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest())
-        # return 'object: ' + repr(self) + ', origin: ' + str(self._origin) + ', dest: ' + str(self.dest()) + ', twin: ' + repr(self._twin)
-        # return 'origin: ' + str(self._origin) + ', dest: ' + repr(self.dest()) + ', next: ' + repr(self._next) + ', prev: ' + repr(self._prev)
-        # return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest()) + ', next: ' + repr(self._next) + ', prev: ' + repr(self._prev) + ', twin: ' + repr(self._twin)
 
 
 class DCEL:
@@ -45,6 +44,30 @@ class DCEL:
                 if vertex._incidentEdge == edge:
                     break
     
+    def assignAdjacency(self, coord, edge1, edge2):
+        if edge1._origin != coord:
+            if edge2._origin != coord:
+                edge1._next = edge2._twin
+                edge1._twin._prev = edge2
+                edge2._next = edge1._twin
+                edge2._twin._prev = edge1
+            else:
+                edge1._next = edge2
+                edge1._twin._prev = edge2._twin
+                edge2._prev = edge1
+                edge2._twin._next = edge1._twin
+        else:
+            if edge2._origin != coord:
+                edge1._prev = edge2._twin
+                edge1._twin._next = edge2
+                edge2._prev = edge1._twin
+                edge2._twin._next = edge1
+            else:
+                edge1._prev = edge2
+                edge1._twin._next = edge2._twin
+                edge2._next = edge1
+                edge2._twin._prev = edge1._twin
+
     def edges(self):
         return self._edges
     
@@ -52,9 +75,43 @@ class DCEL:
         vertex = Vertex(xy)
         return vertex
     
-    def addEdge(self):
+    def addEdge(self, point, site1, site2):
         edge = HalfEdge()
         self._edges.append(edge)
+        edge._twin = HalfEdge()
+        edge._twin._twin = edge
+        self._edges.append(edge._twin)
+        edge._point = point
+        edge._twin._point = point
+
+        if site1[0] > site2[0]:
+            temp = site1
+            site1 = site2
+            site2 = temp
+
+        slope = (site2[1] - site1[1])/(site2[0] - site1[0])
+        x0 = [0,-1.0/slope * (0-point[0]) + point[1]]
+        x1 = [1,-1.0/slope * (1-point[0]) + point[1]]
+        y0 = [-slope * (0-point[1]) + point[0],0]
+        y1 = [-slope * (1-point[1]) + point[0],1]
+        
+        # print('yee')
+        # print(x0)
+        # print(x1)
+        # print(y0)
+        # print(y1)
+        useful = []
+        if (x0[1] > 0) and (x0[1] < 1):
+            useful.append(x0)
+        if (x1[1] > 0) and (x1[1] < 1):
+            useful.append(x1)
+        if (y0[0] >= 0) and (y0[0] <= 1):
+            useful.append(y0)
+        if (y1[0] >= 0) and (y1[0] <= 1):
+            useful.append(y1)
+        edge._vector = [useful[0][0] - point[0], useful[0][1] - point[1]]
+        print(str(edge._point) + ' + ' + str(edge._vector) + ' = ' + str([edge._point[0] + edge._vector[0], edge._point[1] + edge._vector[1]]))
+        edge._twin._vector = [useful[1][0] - point[0], useful[1][1] - point[1]]
         return edge
     
     def dest(self, edge):

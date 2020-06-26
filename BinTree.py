@@ -155,7 +155,7 @@ class BinTree:
             node = node._right
         return node
             
-    def predessesor(self, node):
+    def predecessor(self, node):
         if node._left == None:
             child = node
             node = node._parent
@@ -174,7 +174,14 @@ class BinTree:
             return self.lowestLeaf(successor._right)
         else:
             return None
-    
+
+    def replace(self, old, new):
+        self.remove(new)
+        old._site = new._site
+        old._event = new._event
+        old._breakpoint = new._breakpoint
+        old._halfedge = new._halfedge
+        
     def lowestLeaf(self, node):
         if node._left != None:
             return self.lowestLeaf(node._left)
@@ -184,9 +191,9 @@ class BinTree:
             return node
 
     def prevLeaf(self, node):
-        predessesor = self.predessesor(node)
-        if predessesor:
-            return self.highestLeaf(predessesor._left)
+        predecessor = self.predecessor(node)
+        if predecessor:
+            return self.highestLeaf(predecessor._left)
         else:
             return None
     
@@ -213,15 +220,15 @@ class BinTree:
             self.resetLast()
         self._size -= 1
 
-
-    def intersect(self, bp, l):
-        p1 = bp[0]
-        p2 = bp[1]
+    def intersect(self, breakpoint, l):
+        p1 = breakpoint[0]
+        p2 = breakpoint[1]
 
         a = 1.0/(2*(p1[1] - l)) - 1.0/(2*(p2[1] - l))
         b = float(p2[0])/(p2[1] - l) - float(p1[0])/(p1[1] - l)
         c = float(p1[0]**2 + p1[1]**2 - l**2)/(2*(p1[1]-l)) - float(p2[0]**2 + p2[1]**2 - l**2)/(2*(p2[1] - l))
-        
+
+        # this is for when multiple points have the same y value
         if a == 0:
             x1 = - c/b
             y1 = 1.0/(2*(p1[1] - l))*(x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2)
@@ -231,17 +238,19 @@ class BinTree:
         y1 = 1.0/(2*(p1[1] - l))*(x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2)
         x2 = (- b - (b**2 - 4*a*c)**0.5)/(2*a)
         y2 = 1.0/(2*(p1[1] - l))*(x2**2 - 2*p1[0]*x2 + p1[0]**2 + p1[1]**2 - l**2)
-        if x1 > x2:
-            larger = [x1,y1]
-            smaller = [x2,y2]
-        else:
-            larger = [x2,y2]
-            smaller = [x1,y1]
 
-        if p1[1] < p2[1]: # this makes no sense, but play with parabolas
+        larger = [x1,y1] if x1 > x2 else [x2,y2]
+        smaller = [x2,y2] if x1 > x2 else [x1,y1]
+
+        old = p2 if p1[1] < p2[1] else p1
+        new = p1 if p1[1] < p2[1] else p2
+
+        if [p1,p2] == [old,new]:
+            return smaller
+        elif [p1,p2] == [new,old]:
             return larger
         else:
-            return smaller
+            print('flag')
 
     def addRight(self, node, version, data1, data2=None):
         node.addRight(version, data1, data2)
