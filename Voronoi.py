@@ -5,7 +5,6 @@ from matplotlib.collections import LineCollection as LineColl
 from BinTree import BinTree
 from DCEL import DCEL
 from Heap import Heap
-from random import random
 from functools import reduce
 
 class Voronoi:
@@ -159,26 +158,11 @@ class Voronoi:
             center._event = e
             print('added an event for: {}'.format(str(center)))
 
-def rand():
-    return round(random()*100)/100.0
-
-def testNumPoints(n):
-    points = []
-    yvalues = []
-    for _ in range(n):
-        a = rand()
-        while a in yvalues:
-            a = rand()
-        yvalues.append(a)
-        points.append([rand(),a])
-    print(points)
-    return points
-
 if __name__ == "__main__":
     # points = [[0.3,0.7],[0.7,0.3]]
-    points = [[0.19, 0.68], [0.46, 0.09], [0.95, 0.89]]
+    # points = [[0.19, 0.68], [0.46, 0.09], [0.95, 0.89]]
     # points = [[0.86, 0.37], [0.38, 0.21], [0.1, 0.51], [0.81, 0.68]]
-    # points = testNumPoints(3)
+    points = Calc.testNumPoints(3)
 
     diagram = Voronoi(points)
     print(diagram._edgelist)
