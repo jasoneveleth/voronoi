@@ -1,4 +1,5 @@
 from math import ceil
+import Calc
 
 class Event:
     def __init__(self, index, kind, data, p1=None, p2=None, p3=None):
@@ -8,7 +9,7 @@ class Event:
             self._site = data
         elif self._kind == 'circle event':
             self._leaf = data
-            self._point = self.circum(p1, p2, p3)
+            self._point = Calc.circleBottom(p1, p2, p3)
         else:
             print("yoinks, non-event")
     
@@ -18,13 +19,6 @@ class Event:
         if self._kind == 'circle event':
             return self._point[1]
 
-    def circum(self, a, b, c):
-        d = 2*(a[0]*(b[1]-c[1]) + b[0]*(c[1]-a[1]) + c[0]*(a[1]-b[1]))
-        x = (1.0/d)*((a[0]**2 + a[1]**2)*(b[1] - c[1]) + (b[0]**2 + b[1]**2)*(c[1] - a[1]) + (c[0]**2 + c[1]**2)*(a[1] - b[1]))
-        y = (1.0/d)*((a[0]**2 + a[1]**2)*(c[0] - b[0]) + (b[0]**2 + b[1]**2)*(a[0] - c[0]) + (c[0]**2 + c[1]**2)*(b[0] - a[0]))
-        r = ((a[0]-x)**2 + (a[1]-y)**2)**0.5
-        return [x,y-r]
-    
     def __str__(self):
         if self._kind == 'site event':
             return "kind: '{}' site: {}".format(str(self._kind), str(self._site))
@@ -59,6 +53,7 @@ class Heap:
         self._array.append(event)
         self.upheap(event)
         self.downheap(event)
+        print(event.key())
         return event
     
     def swap(self, e1, e2):

@@ -1,3 +1,5 @@
+import Calc
+
 class Node:
     def __init__(self, parent, version, data1, data2):
         self._parent = parent
@@ -105,7 +107,7 @@ class BinTree:
         print(' . . . searching')
         print('site: {}'.format(str(site)))
         while node._version != 'arc':
-            intersection = self.intersect(node._breakpoint, site[1])
+            intersection = Calc.intersect(node._breakpoint, site[1])
             print('intersection: {}'.format(str(intersection)))
             if site[0] < intersection[0]:
                 node = node._left
@@ -169,8 +171,8 @@ class BinTree:
             return self.getMax(node._left)
         
     def nextLeaf(self, node):
-        successor = self.successor(node)
-        if successor:
+        if not self.isLast(node):
+            successor = self.successor(node)
             return self.lowestLeaf(successor._right)
         else:
             return None
@@ -181,6 +183,8 @@ class BinTree:
         old._event = new._event
         old._breakpoint = new._breakpoint
         old._halfedge = new._halfedge
+        old._left = new._left
+        old._right = new._right
         
     def lowestLeaf(self, node):
         if node._left != None:
@@ -191,8 +195,8 @@ class BinTree:
             return node
 
     def prevLeaf(self, node):
-        predecessor = self.predecessor(node)
-        if predecessor:
+        if not self.isFirst(node):
+            predecessor = self.predecessor(node)
             return self.highestLeaf(predecessor._left)
         else:
             return None
@@ -219,38 +223,6 @@ class BinTree:
         elif node == self._last:
             self.resetLast()
         self._size -= 1
-
-    def intersect(self, breakpoint, l):
-        p1 = breakpoint[0]
-        p2 = breakpoint[1]
-
-        a = 1.0/(2*(p1[1] - l)) - 1.0/(2*(p2[1] - l))
-        b = float(p2[0])/(p2[1] - l) - float(p1[0])/(p1[1] - l)
-        c = float(p1[0]**2 + p1[1]**2 - l**2)/(2*(p1[1]-l)) - float(p2[0]**2 + p2[1]**2 - l**2)/(2*(p2[1] - l))
-
-        # this is for when multiple points have the same y value
-        if a == 0:
-            x1 = - c/b
-            y1 = 1.0/(2*(p1[1] - l))*(x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2)
-            return [x1,y1]
-
-        x1 = (- b + (b**2 - 4*a*c)**0.5)/(2*a)
-        y1 = 1.0/(2*(p1[1] - l))*(x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2)
-        x2 = (- b - (b**2 - 4*a*c)**0.5)/(2*a)
-        y2 = 1.0/(2*(p1[1] - l))*(x2**2 - 2*p1[0]*x2 + p1[0]**2 + p1[1]**2 - l**2)
-
-        larger = [x1,y1] if x1 > x2 else [x2,y2]
-        smaller = [x2,y2] if x1 > x2 else [x1,y1]
-
-        old = p2 if p1[1] < p2[1] else p1
-        new = p1 if p1[1] < p2[1] else p2
-
-        if [p1,p2] == [old,new]:
-            return smaller
-        elif [p1,p2] == [new,old]:
-            return larger
-        else:
-            print('flag')
 
     def addRight(self, node, version, data1, data2=None):
         node.addRight(version, data1, data2)

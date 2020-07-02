@@ -75,6 +75,12 @@ class DCEL:
         vertex = Vertex(xy)
         return vertex
     
+    def addOrigin(self, node, coord):
+        if node._origin is None:
+            node._origin = coord
+        else:
+            node._twin._origin = coord
+
     def addEdge(self, point, site1, site2):
         edge = HalfEdge()
         self._edges.append(edge)
@@ -95,11 +101,6 @@ class DCEL:
         y0 = [-slope * (0-point[1]) + point[0],0]
         y1 = [-slope * (1-point[1]) + point[0],1]
         
-        # print('yee')
-        # print(x0)
-        # print(x1)
-        # print(y0)
-        # print(y1)
         useful = []
         if (x0[1] > 0) and (x0[1] < 1):
             useful.append(x0)
@@ -109,8 +110,8 @@ class DCEL:
             useful.append(y0)
         if (y1[0] >= 0) and (y1[0] <= 1):
             useful.append(y1)
+        # INTERSECTION THAT GOES TO THE LEFT IS ASSIGNED TO EDGE
         edge._vector = [useful[0][0] - point[0], useful[0][1] - point[1]]
-        print(str(edge._point) + ' + ' + str(edge._vector) + ' = ' + str([edge._point[0] + edge._vector[0], edge._point[1] + edge._vector[1]]))
         edge._twin._vector = [useful[1][0] - point[0], useful[1][1] - point[1]]
         return edge
     
