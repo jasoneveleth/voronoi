@@ -9,8 +9,6 @@ from functools import reduce
 
 class Voronoi:
     def __init__(self, points):
-        """takes in a list of points (lists)
-        returns the doubly connected edge list"""
         self._events = Heap()
         self._status = BinTree()
         self._edgelist = DCEL()
@@ -25,28 +23,7 @@ class Voronoi:
                 self.handleCircleEvent(event._leaf)
         self.finishDiagram(points)
         self.plot(points)
-
-    def finishDiagram(self, points):
-        for e in self._edgelist.edges():
-            if e._origin is None:
-                e._origin = [e._point[0] + e._vector[0], e._point[1] + e._vector[1]]
-                self._edgelist.addVertex(e._origin)
-        # TODO traverse the half edges to add the cell records and the pointers to and from them
-    
-    def plot(self, sites=None):
-        # plot sites
-        if sites is not None:
-            sites = np.array(sites)
-            plt.plot(sites[:,0], sites[:,1], 'ro')
-
-        vertices = np.array([e._origin for e in self._edgelist.edges()])
-        plt.plot(vertices[:,0], vertices[:,1], 'bo')
-
-        edges = LineColl([[e._origin, e.dest()] for e in self._edgelist.edges()])
-        plt.gca().add_collection(edges)
-
-        plt.axis([0, 1, 0, 1])
-        plt.show()
+        return self
 
     def handleSiteEvent(self, event):
         print('handle site event {}'.format(self._status))
@@ -57,26 +34,26 @@ class Voronoi:
 
         # Remove false alarm
         if oldNode._event != None:
-            print('removed event for: {}'.format(str(oldNode)))
+            print('removed event for: {}'.format(oldNode))
             self._events.remove(oldNode._event)
             oldNode._event = None
 
         # add subtree
         oldNode._version = 'breakpoint'
         oldNode._breakpoint = [oldNode._site, event._site]
-        point = [event._site[0], (1.0/(2*(oldNode._site[1] - event._site[1]))) * (event._site[0] - oldNode._site[0])**2 + (oldNode._site[1] + event._site[1])/2.0]
+        point = Calc.getProjection(event._site, oldNode._site)
         oldNode._halfedge = self._edgelist.addEdge(point, oldNode._site, event._site)
 
-        newBreakpoint = self._status.addRight(oldNode, 'breakpoint', [event._site, oldNode._site], oldNode._halfedge._twin)
+        newBp = self._status.addRight(oldNode, 'breakpoint', [event._site, oldNode._site], oldNode._halfedge._twin)
         oldArcLeft = self._status.addLeft(oldNode, 'arc', oldNode._site)
-        newArc = self._status.addLeft(newBreakpoint, 'arc', event._site)
-        oldArcRight = self._status.addRight(newBreakpoint, 'arc', oldNode._site)
+        newArc = self._status.addLeft(newBp, 'arc', event._site)
+        oldArcRight = self._status.addRight(newBp, 'arc', oldNode._site)
 
         oldNode._site = None
 
         # update edges
-        oldNode._halfedge._twin = newBreakpoint._halfedge
-        newBreakpoint._halfedge._twin = oldNode._halfedge
+        oldNode._halfedge._twin = newBp._halfedge
+        newBp._halfedge._twin = oldNode._halfedge
         
         print(self._status)
         # check for new circle events
@@ -88,10 +65,10 @@ class Voronoi:
         if toRight is not None:
             self.checkNewCircle(newArc, oldArcRight, toRight)
         
-        print('----------------------------------------------------------------------')
+        print('-----------------------------------------------------------')
 
     def handleCircleEvent(self, leaf):
-        print('handle circle event {}'.format(str(self._status)))
+        print('handle circle event {}'.format(self._status))
         nextLeaf = self._status.nextLeaf(leaf)
         prevLeaf = self._status.prevLeaf(leaf)
         nextBreakpoint = self._status.successor(leaf)
@@ -102,21 +79,21 @@ class Voronoi:
         if nextBreakpoint == leaf._parent:
             self._status.replace(nextBreakpoint, nextBreakpoint._right)
             prevBreakpoint._breakpoint[1] = nextLeaf._site
-            newBreakpoint = prevBreakpoint
+            freshBreakpoint = prevBreakpoint
         elif prevBreakpoint == leaf._parent:
             self._status.replace(prevBreakpoint, prevBreakpoint._left)
             nextBreakpoint._breakpoint[1] = prevLeaf._site
-            newBreakpoint = nextBreakpoint
+            freshBreakpoint = nextBreakpoint
         else:
             print('our assumptions were wrong, our worst fear')
             
         # remove false alarm circle self._events
         if nextLeaf._event != None:
-            print('removed event for: {}'.format(str(nextLeaf)))
+            print('removed event for: {}'.format(nextLeaf))
             self._events.remove(nextLeaf._event)
             nextLeaf._event = None
         if prevLeaf._event != None:
-            print('removed event for: {}'.format(str(prevLeaf)))
+            print('removed event for: {}'.format(prevLeaf))
             self._events.remove(prevLeaf._event)
             prevLeaf._event = None
 
@@ -133,7 +110,7 @@ class Voronoi:
 
         oldLeftEdge = prevBreakpoint._halfedge
         oldRightEdge = nextBreakpoint._halfedge
-        newBreakpoint._halfedge = newHalf
+        freshBreakpoint._halfedge = newHalf
 
         self._edgelist.addOrigin(oldLeftEdge, coord)
         self._edgelist.addOrigin(oldRightEdge, coord)
@@ -149,20 +126,45 @@ class Voronoi:
         toRight = self._status.nextLeaf(nextLeaf)
         if toRight is not None:
             self.checkNewCircle(prevLeaf, nextLeaf, toRight)
-        print('----------------------------------------------------------------------')
+        print('-----------------------------------------------------------')
 
     def checkNewCircle(self, left, center, right):
-        print('{}, {}, {}'.format(str(left), str(center), str(right)))
-        if center._site[1] >= right._site[1] and center._site[1] >= left._site[1]:
+        print('{}, {}, {}'.format(left, center, right))
+        next = self._status.successor(center)
+        prev = self._status.predecessor(center)
+        if Calc.converge(next, prev):
             e = self._events.insert('circle event', center, left._site, center._site, right._site)
             center._event = e
-            print('added an event for: {}'.format(str(center)))
+            print('added an event for: {}'.format(center))
+
+    def finishDiagram(self, points):
+        for e in self._edgelist.edges():
+            if e._origin is None:
+                e._origin = Calc.sumVectors(e._point, e._vector)
+                self._edgelist.addVertex(e._origin)
+        # TODO traverse the half edges to add the cell records and the pointers to and from them
+    
+    def plot(self, sites=None):
+        # plot sites
+        if sites is not None:
+            sites = np.array(sites)
+            plt.plot(sites[:,0], sites[:,1], 'ro')
+
+        vertices = np.array([e._origin for e in self._edgelist.edges()])
+        plt.plot(vertices[:,0], vertices[:,1], 'bo')
+
+        edges = [[e._origin, e.dest()] for e in self._edgelist.edges()]
+        edges = LineColl(edges)
+        plt.gca().add_collection(edges)
+
+        plt.axis([0, 1, 0, 1])
+        plt.show()
 
 if __name__ == "__main__":
     # points = [[0.3,0.7],[0.7,0.3]]
     # points = [[0.19, 0.68], [0.46, 0.09], [0.95, 0.89]]
     # points = [[0.86, 0.37], [0.38, 0.21], [0.1, 0.51], [0.81, 0.68]]
-    points = Calc.testNumPoints(3)
+    points = Calc.getPoints(3)
 
     diagram = Voronoi(points)
     print(diagram._edgelist)

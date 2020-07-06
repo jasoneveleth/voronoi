@@ -50,9 +50,9 @@ class Node:
             currLine += "|- *" + self._version + "* "
             prefix += "|  "
         if self._version == 'breakpoint':
-            currLine += "breakpoint: " + str(self._breakpoint) + " halfedge: '" + str(self._halfedge) + "'\n"
+            currLine += "breakpoint: {} halfedge: '{}'\n".format(self._breakpoint, self._halfedge)
         else:
-            currLine += "site: {}\n".format(str(self._site))
+            currLine += "site: {}\n".format(self._site)
         if self._left != None:
             if self._right != None:
                 return currLine + self._left.fullprint(prefix, False) + self._right.fullprint(prefix, True)
@@ -105,15 +105,15 @@ class BinTree:
         node = self.root()
         print()
         print(' . . . searching')
-        print('site: {}'.format(str(site)))
+        print('site: {}'.format(site))
         while node._version != 'arc':
             intersection = Calc.intersect(node._breakpoint, site[1])
-            print('intersection: {}'.format(str(intersection)))
+            print('intersection: {}'.format(intersection))
             if site[0] < intersection[0]:
                 node = node._left
             else:
                 node = node._right
-        print('found node: {}'.format(str(node)))
+        print('found node: {}'.format(node))
         return node
     
     def isRightChild(self, node):

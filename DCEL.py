@@ -110,9 +110,12 @@ class DCEL:
             useful.append(y0)
         if (y1[0] >= 0) and (y1[0] <= 1):
             useful.append(y1)
+
         # INTERSECTION THAT GOES TO THE LEFT IS ASSIGNED TO EDGE
-        edge._vector = [useful[0][0] - point[0], useful[0][1] - point[1]]
-        edge._twin._vector = [useful[1][0] - point[0], useful[1][1] - point[1]]
+        left = useful[1] if useful[1][0] <= useful[0][0] else useful[0]
+        right = useful[0] if useful[1][0] <= useful[0][0] else useful[1]
+        edge._vector = [left[0] - point[0], left[1] - point[1]]
+        edge._twin._vector = [right[0] - point[0], right[1] - point[1]]
         return edge
     
     def dest(self, edge):
@@ -120,7 +123,6 @@ class DCEL:
 
     def vertices(self):
         return self._vertices
-
 
     def __str__(self):
         string = 'HalfEdges: \n'

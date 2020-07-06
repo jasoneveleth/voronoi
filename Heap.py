@@ -21,9 +21,9 @@ class Event:
 
     def __str__(self):
         if self._kind == 'site event':
-            return "kind: '{}' site: {}".format(str(self._kind), str(self._site))
+            return "kind: '{}' site: {}".format(self._kind, self._site)
         else:
-            return "kind: '{}' leaf: {} point: {}".format(str(self._kind), str(self._leaf), str(self._point))
+            return "kind: '{}' leaf: {} point: {}".format(self._kind, self._leaf, self._point)
 
 class Heap:
     def __init__(self):
@@ -64,7 +64,7 @@ class Heap:
         e2._index = temp
 
     def downheap(self, event):
-        while self.size() > 2 * event._index + 1 and event.key() < self.maxChild(event).key():
+        while (self.size() > 2 * event._index + 1) and (event.key() < self.maxChild(event).key()):
             self.swap(event, self.maxChild(event))
 
     def upheap(self, event):
