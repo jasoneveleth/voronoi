@@ -1,6 +1,6 @@
 # Pseudocode #
 This is designed as a better explanation of [this textbook's](https://people.inf.elte.hu/fekete/algoritmusok_msc/terinfo_geom/konyvek/Computational%20Geometry%20-%20Algorithms%20and%20Applications,%203rd%20Ed.pdf) explanation of contructing Voronoi diagrams, and I assume you've read this already (chapter 7 and the datastructures required). This README will help explain Voronoi.py which isn't commented.
-
+<sup id="cc">[1](#checkcircle)</sup>
 ## High Level Construction ##
 ```
 makeDiagram(sites: list of [x,y])
