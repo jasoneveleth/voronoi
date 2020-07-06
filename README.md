@@ -36,8 +36,8 @@ handleSiteEvent(event)
     after when they start) <sup id="cc">[[1]](#checkcircle)</sup>
 </pre>
 
-[1]: <a id="checkcircle">1</a> When we create half edges, we store the point that
+<a id="checkcircle">1</a> When we create half edges, we store the point that
 we know they contain, and the vector toward the edge, then when we solve the
 vector equation:
 ```p1 + t(v1) = p2 + s(v2)```
-where p1, p2, v1, v2 are known vectors, and t, s are the unknowns. [↩&#xFEOE;](#cc)
+where p1, p2, v1, v2 are known vectors, and t, s are the unknowns. [⏎](#cc)
