@@ -23,7 +23,7 @@ handleSiteEvent(event)
 1.  if tree is empty
 2.      add arc as the root
 3.      return
-4.  oldNode <- node found above the event's node
+4.  oldNode <- node found above the event's node<a href="#findarc" id="fa"><sup>[1]</sup></a>
 5.  remove false alarm circle event (if oldNode has an event)
 6.  attach a subtree where oldNode used to be with two new breakpoints and 
     three new edges like this:
@@ -34,10 +34,13 @@ handleSiteEvent(event)
            B     A
 7.  set the breakpoint's half edges as twins
 8.  check for new circle event (if the breakpoint's half edges intersect
-    after when they start)<a href="#checkcircle" id="cc"><sup>[1]</sup></a>
+    after when they start)<a href="#checkcircle" id="cc"><sup>[2]</sup></a>
 </pre>
 
-<a id="checkcircle" href="#cc">[1]</a> When we create half edges, we store 
+<a id="findarc" href="#fa">[1]</a> Trace down the tree, and at each breakpoint, take the two sites, find the one with the higher y-value (the older one), and this shows if we are on the left, or right intersection of the parabolas.
+
+
+<a id="checkcircle" href="#cc">[2]</a> When we create half edges, we store 
 the point that we know they contain, and the vector toward the edge, then 
 when we solve the vector equation:
 ```p1 + t(v1) = p2 + s(v2)```
