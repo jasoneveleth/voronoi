@@ -17,7 +17,7 @@ makeDiagram(sites: list of [x,y])
 ```
 
 ## Handle Site Event ##
-<code>
+<pre>
 handleSiteEvent(event)
 1.  if tree is empty
 2.      add arc as the root
@@ -33,8 +33,8 @@ handleSiteEvent(event)
            B     A
 7.  set the breakpoint's half edges as twins
 8.  check for new circle event (if the breakpoint's half edges intersect
-    after when they start) <sup id="cc">[[1]](#checkcircle)</sup>
-</code>
+    after when they start) <a href="#checkcircle"><sup id="cc">[[1]](#checkcircle)</sup><\a>
+</pre>
 
 <a id="checkcircle">1</a> When we create half edges, we store the point that
 we know they contain, and the vector toward the edge, then when we solve the
