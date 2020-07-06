@@ -1,5 +1,5 @@
 # Pseudocode #
-This is designed as a better explanation of [this textbook's explanation](https://people.inf.elte.hu/fekete/algoritmusok_msc/terinfo_geom/konyvek/Computational%20Geometry%20-%20Algorithms%20and%20Applications,%203rd%20Ed.pdf) of contructing Voronoi diagrams, and I assume you've read this already (chapter 7 and the datastructures required). This README will help explain Voronoi.py which isn't commented.
+This is designed as a better explanation of [this textbook's](https://people.inf.elte.hu/fekete/algoritmusok_msc/terinfo_geom/konyvek/Computational%20Geometry%20-%20Algorithms%20and%20Applications,%203rd%20Ed.pdf) explanation of contructing Voronoi diagrams, and I assume you've read this already (chapter 7 and the datastructures required). This README will help explain Voronoi.py which isn't commented.
 
 ## High Level Construction ##
 ```
@@ -33,5 +33,12 @@ handleSiteEvent(event)
             /   \
            B     A
 7.  set the breakpoint's half edges as twins
-8.   
+8.  check for new circle event (if the breakpoint's half edges intersect
+    after when they start)[^checkcircle]
 ```
+
+[^checkcircle]: When we create half edges, we store the point that we know
+    they contain, and the vector toward the edge, then when we solve the
+    vector equation:
+    p1 + t(v1) = p2 + s(v2)
+    where p1, p2, v1, v2 are known vectors, and t, s are the unknowns.
