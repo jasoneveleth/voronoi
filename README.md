@@ -18,6 +18,6 @@ handleSiteEvent(event)
 1.  if tree is empty
 2.      add arc as the root
 3.      return
-4.  oldNode = node found above the event's node
+4.  oldNode <- node found above the event's node
 5.  remove false alarm circle events (if oldNode has an event)
 6.  
