@@ -35,7 +35,7 @@ handleSiteEvent(event)
 7.  set the breakpoint's half edges as twins
 8.  check for new circle event (if the breakpoint's half edges intersect
     after when they start) <sup id="cc">[1](#checkcircle)</sup>
-<pre>
+</pre>
 
 <a id="checkcircle">1</a> When we create half edges, we store the point that
 we know they contain, and the vector toward the edge, then when we solve the
