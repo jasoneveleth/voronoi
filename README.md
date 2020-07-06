@@ -33,7 +33,7 @@ handleSiteEvent(event)
            B     A
 7.  set the breakpoint's half edges as twins
 8.  check for new circle event (if the breakpoint's half edges intersect
-    after when they start) <a href="#checkcircle" id="cc"><sup>[[1]]</sup><\a>
+    after when they start) <a href="#checkcircle" id="cc"><sup>[1]</sup></a>
 </pre>
 
 <a id="checkcircle">1</a> When we create half edges, we store the point that
