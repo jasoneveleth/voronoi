@@ -99,21 +99,15 @@ class Voronoi:
 
         print('a: ' + str(prevLeaf._site) + ' b: ' + str(leaf._site) + ' c: ' + str(nextLeaf._site))
         coord = Calc.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
+        vert = self._edgelist.addVertex(coord)
+        self._edgelist.addOrigin(prevBreakpoint._halfedge, coord)
+        self._edgelist.addOrigin(nextBreakpoint._halfedge, coord)
 
         # making new edge
         newHalf = self._edgelist.addEdge(coord, prevLeaf._site, nextLeaf._site)
         newHalf._origin = coord
-
-        # add vertex and incident edge
-        vert = self._edgelist.addVertex(coord)
         vert._incidentEdge = newHalf
-
-        oldLeftEdge = prevBreakpoint._halfedge
-        oldRightEdge = nextBreakpoint._halfedge
         freshBreakpoint._halfedge = newHalf
-
-        self._edgelist.addOrigin(oldLeftEdge, coord)
-        self._edgelist.addOrigin(oldRightEdge, coord)
 
         # assign next and previous
         self._edgelist.assignAdjacency(coord, prevBreakpoint._halfedge, nextBreakpoint._halfedge)

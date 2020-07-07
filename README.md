@@ -37,6 +37,32 @@ handleSiteEvent(event)
     after when they start)<a href="#checkcircle" id="cc"><sup>[2]</sup></a>
 </pre>
 
+## Handle Circle Event ##
+<pre>
+handleCircleEvent(leaf)
+1.  get references to next leaf, previous leaf, next breakpoint, and 
+    previous breakpoint.
+2.  remove the leaf
+3.  take the breakpoint (either next or prev) whose child was the leaf, and 
+    replace it with the other child. Then reassign the other breakpoint 
+    (either next or prev) so that the two points properly reflect what is 
+    going on:
+            [A,B]                   [A,C]
+            /   \                   /   \
+          ...    [B,C]            ...   ...
+          /\     /   \    ->      / \   / \
+        ... A   B    ...        ...  A C  ...
+                     / \
+                    C  ...
+
+    as you can see, all the '...' stay the same, and the [B,C] breakpoint
+    disappears, and the [A,B] breakpoint changes to [A,C].
+4.  calculate the center of the circle, add a vertex there, add origins to
+    the old edges
+5.  make a new edge, and add the center of the circle as its origin
+6.  
+
+
 <a id="findarc" href="#fa">[1]</a> Trace down the tree, and at each breakpoint, take the two sites, find the one with the higher y-value (the older one), and this shows if we are on the left, or right intersection of the parabolas.
 
 
