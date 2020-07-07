@@ -61,7 +61,7 @@ handleCircleEvent(leaf)
     the old edges
 5.  make a new edge, and add the center of the circle as its origin
 6.  
-
+</pre>
 
 <a id="findarc" href="#fa">[1]</a> Trace down the tree, and at each breakpoint, take the two sites, find the one with the higher y-value (the older one), and this shows if we are on the left, or right intersection of the parabolas.
 
