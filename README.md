@@ -27,11 +27,11 @@ handleSiteEvent(event)
 5.  remove false alarm circle event (if oldNode has an event)
 6.  attach a subtree where oldNode used to be with two new breakpoints and 
     three new edges like this:
-        [A,B]
-        /   \
-       A    [B,A]
-            /   \
-           B     A
+                    [A,B]
+                    /   \
+      A    ->      A    [B,A]
+                        /   \
+                       B     A
 7.  set the breakpoint's half edges as twins
 8.  check for new circle event (if the breakpoint's half edges intersect
     after when they start)<a href="#checkcircle" id="cc"><sup>[2]</sup></a>

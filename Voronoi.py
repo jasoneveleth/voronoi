@@ -16,11 +16,14 @@ class Voronoi:
             self._events.insert('site event', p)
             
         while not self._events.empty():
+            print(self._events)
             event = self._events.removeMax()
+            print('-----------------------------------------------------------')
             if event._kind == 'site event':
                 self.handleSiteEvent(event)
             else:
                 self.handleCircleEvent(event._leaf)
+            print('-----------------------------------------------------------')
         self.finishDiagram(points)
         self.plot(points)
 
@@ -28,7 +31,6 @@ class Voronoi:
         print('handle site event {}'.format(self._status))
         if self._status.empty():
             self._status.addRoot('arc', event._site, None)
-            print('-----------------------------------------------------------')
             return
         oldNode = self._status.findArc(event._site)
 
@@ -43,6 +45,7 @@ class Voronoi:
         oldNode._breakpoint = [oldNode._site, event._site]
         point = Calc.getProjection(event._site, oldNode._site)
         oldNode._halfedge = self._edgelist.addEdge(point, oldNode._site, event._site)
+        print('oldNode half: {}'.format(Calc.sumVectors(oldNode._halfedge._point, oldNode._halfedge._vector)))
 
         newBp = self._status.addRight(oldNode, 'breakpoint', [event._site, oldNode._site], oldNode._halfedge._twin)
         oldArcLeft = self._status.addLeft(oldNode, 'arc', oldNode._site)
@@ -65,7 +68,6 @@ class Voronoi:
         if toRight is not None:
             self.checkNewCircle(newArc, oldArcRight, toRight)
         
-        print('-----------------------------------------------------------')
 
     def handleCircleEvent(self, leaf):
         print('handle circle event {}'.format(self._status))
@@ -100,6 +102,8 @@ class Voronoi:
         print('a: ' + str(prevLeaf._site) + ' b: ' + str(leaf._site) + ' c: ' + str(nextLeaf._site))
         coord = Calc.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
         vert = self._edgelist.addVertex(coord)
+        print(Calc.sumVectors(prevBreakpoint._halfedge._point, prevBreakpoint._halfedge._vector))
+        print(Calc.sumVectors(nextBreakpoint._halfedge._point, nextBreakpoint._halfedge._vector))
         self._edgelist.addOrigin(prevBreakpoint._halfedge, coord)
         self._edgelist.addOrigin(nextBreakpoint._halfedge, coord)
 
@@ -120,10 +124,8 @@ class Voronoi:
         toRight = self._status.nextLeaf(nextLeaf)
         if toRight is not None:
             self.checkNewCircle(prevLeaf, nextLeaf, toRight)
-        print('-----------------------------------------------------------')
 
     def checkNewCircle(self, left, center, right):
-        print('{}, {}, {}'.format(left, center, right))
         next = self._status.successor(center)
         prev = self._status.predecessor(center)
         if Calc.converge(next, prev):
@@ -159,7 +161,8 @@ if __name__ == "__main__":
     # points = [[0.19, 0.68], [0.46, 0.09], [0.95, 0.89]]
     # points = [[0.86, 0.37], [0.38, 0.21], [0.1, 0.51], [0.81, 0.68]]
     # points = [[0.13, 0.29], [0.57, 0.47], [0.05, 0.62]]
-    points = Calc.getPoints(2)
+    points = [[0.51, 0.92], [0.62, 0.82], [0.21, 0.98]]
+#     points = Calc.getPoints(3)
 
     diagram = Voronoi(points)
     print(diagram._edgelist)
