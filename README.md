@@ -63,7 +63,7 @@ handleCircleEvent(leaf)
 6.  
 </pre>
 
-<a id="findarc" href="#fa">[1]</a> Trace down the tree, and at each breakpoint, take the two sites, find the one with the higher y-value (the older one), and this shows if we are on the left, or right intersection of the parabolas.
+<a id="findarc" href="#fa">[1]</a> Trace down the tree, and at each breakpoint, take the two sites, find the one with the higher y-value (the older one), and this shows if we are on the left, or right intersection of the parabolas.[⏎](#fa)
 
 
 <a id="checkcircle" href="#cc">[2]</a> When we create half edges, we store 
