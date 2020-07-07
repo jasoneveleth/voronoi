@@ -111,6 +111,8 @@ class DCEL:
         if (y1[0] >= 0) and (y1[0] <= 1):
             useful.append(y1)
 
+        print('{} {} {}'.format(point, site1, site2))
+        print('{} {} {} {}'.format(x0, x1, y0, y1))
         # INTERSECTION THAT GOES TO THE LEFT IS ASSIGNED TO EDGE
         left = useful[1] if useful[1][0] <= useful[0][0] else useful[0]
         right = useful[0] if useful[1][0] <= useful[0][0] else useful[1]

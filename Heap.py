@@ -53,7 +53,6 @@ class Heap:
         self._array.append(event)
         self.upheap(event)
         self.downheap(event)
-        print(event.key())
         return event
     
     def swap(self, e1, e2):

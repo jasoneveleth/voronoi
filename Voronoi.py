@@ -23,12 +23,12 @@ class Voronoi:
                 self.handleCircleEvent(event._leaf)
         self.finishDiagram(points)
         self.plot(points)
-        return self
 
     def handleSiteEvent(self, event):
         print('handle site event {}'.format(self._status))
         if self._status.empty():
             self._status.addRoot('arc', event._site, None)
+            print('-----------------------------------------------------------')
             return
         oldNode = self._status.findArc(event._site)
 
@@ -158,6 +158,7 @@ if __name__ == "__main__":
     # points = [[0.3,0.7],[0.7,0.3]]
     # points = [[0.19, 0.68], [0.46, 0.09], [0.95, 0.89]]
     # points = [[0.86, 0.37], [0.38, 0.21], [0.1, 0.51], [0.81, 0.68]]
+    # points = [[0.13, 0.29], [0.57, 0.47], [0.05, 0.62]]
     points = Calc.getPoints(3)
 
     diagram = Voronoi(points)

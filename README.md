@@ -23,7 +23,7 @@ handleSiteEvent(event)
 1.  if tree is empty
 2.      add arc as the root
 3.      return
-4.  oldNode <- node found above the event's node<a href="#findarc" id="fa"><sup>[1]</sup></a>
+4.  get reference oldNode to node found above the event's node<a href="#findarc" id="fa"><sup>[1]</sup></a>
 5.  remove false alarm circle event (if oldNode has an event)
 6.  attach a subtree where oldNode used to be with two new breakpoints and 
     three new edges like this:
@@ -60,7 +60,8 @@ handleCircleEvent(leaf)
 4.  calculate the center of the circle, add a vertex there, add origins to
     the old edges
 5.  make a new edge, and add the center of the circle as its origin
-6.  
+6.  assign next and previous to the edges that you know
+7.  check for circle events (the same way as before)
 </pre>
 
 <a id="findarc" href="#fa">[1]</a> Trace down the tree, and at each breakpoint, take the two sites, find the one with the higher y-value (the older one), and this shows if we are on the left, or right intersection of the parabolas.[⏎](#fa)

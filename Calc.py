@@ -61,7 +61,7 @@ def getPoints(n):
     return points
 
 def getProjection(point, focus):
-    directrix = point[0]
+    directrix = point[1]
     y = (1.0/(2*(focus[1] - directrix))) * (point[0] - focus[0])**2 + (point[1] + focus[1])/2.0
     return [point[0], y] 
 
@@ -80,5 +80,5 @@ def converge(bp1, bp2):
     else:
         return False
 
-def sumVector(v, w):
+def sumVectors(v, w):
     return [v[0] + w[0], v[1] + w[1]]
