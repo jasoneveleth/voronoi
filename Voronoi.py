@@ -18,7 +18,6 @@ class Voronoi:
         while not self._events.empty():
             print(self._events)
             event = self._events.removeMax()
-            print('-----------------------------------------------------------')
             if event._kind == 'site event':
                 self.handleSiteEvent(event)
             else:
@@ -28,7 +27,6 @@ class Voronoi:
         self.plot(points)
 
     def handleSiteEvent(self, event):
-        print('handle site event {}'.format(self._status))
         if self._status.empty():
             self._status.addRoot('arc', event._site, None)
             return
@@ -45,7 +43,6 @@ class Voronoi:
         oldNode._breakpoint = [oldNode._site, event._site]
         point = Calc.getProjection(event._site, oldNode._site)
         oldNode._halfedge = self._edgelist.addEdge(point, oldNode._site, event._site)
-        print('oldNode half: {}'.format(Calc.sumVectors(oldNode._halfedge._point, oldNode._halfedge._vector)))
 
         newBp = self._status.addRight(oldNode, 'breakpoint', [event._site, oldNode._site], oldNode._halfedge._twin)
         oldArcLeft = self._status.addLeft(oldNode, 'arc', oldNode._site)
@@ -58,7 +55,6 @@ class Voronoi:
         oldNode._halfedge._twin = newBp._halfedge
         newBp._halfedge._twin = oldNode._halfedge
         
-        print(self._status)
         # check for new circle events
         toLeft = self._status.prevLeaf(oldArcLeft)
         if toLeft is not None:
@@ -70,51 +66,42 @@ class Voronoi:
         
 
     def handleCircleEvent(self, leaf):
-        print('handle circle event {}'.format(self._status))
         nextLeaf = self._status.nextLeaf(leaf)
         prevLeaf = self._status.prevLeaf(leaf)
         nextBreakpoint = self._status.successor(leaf)
         prevBreakpoint = self._status.predecessor(leaf)
         self._status.remove(leaf)
 
+        coord = Calc.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
+        vert = self._edgelist.addVertex(coord)
+        newHalf = self._edgelist.addEdge(coord, prevLeaf._site, nextLeaf._site)
+        newHalf._origin = coord
+        prevBreakpoint._halfedge._origin = coord
+        nextBreakpoint._halfedge._origin = coord
+        vert._incidentEdge = newHalf
+
+        # assign next and previous
+        self._edgelist.assignAdjacency(coord, prevBreakpoint._halfedge, nextBreakpoint._halfedge)
+
         # readjusting tree
         if nextBreakpoint == leaf._parent:
             self._status.replace(nextBreakpoint, nextBreakpoint._right)
             prevBreakpoint._breakpoint[1] = nextLeaf._site
-            freshBreakpoint = prevBreakpoint
+            prevBreakpoint._halfedge = newHalf
         elif prevBreakpoint == leaf._parent:
             self._status.replace(prevBreakpoint, prevBreakpoint._left)
             nextBreakpoint._breakpoint[1] = prevLeaf._site
-            freshBreakpoint = nextBreakpoint
+            nextBreakpoint._halfedge = newHalf
         else:
             print('our assumptions were wrong, our worst fear')
             
         # remove false alarm circle self._events
         if nextLeaf._event != None:
-            print('removed event for: {}'.format(nextLeaf))
             self._events.remove(nextLeaf._event)
             nextLeaf._event = None
         if prevLeaf._event != None:
-            print('removed event for: {}'.format(prevLeaf))
             self._events.remove(prevLeaf._event)
             prevLeaf._event = None
-
-        print('a: ' + str(prevLeaf._site) + ' b: ' + str(leaf._site) + ' c: ' + str(nextLeaf._site))
-        coord = Calc.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
-        vert = self._edgelist.addVertex(coord)
-        print(Calc.sumVectors(prevBreakpoint._halfedge._point, prevBreakpoint._halfedge._vector))
-        print(Calc.sumVectors(nextBreakpoint._halfedge._point, nextBreakpoint._halfedge._vector))
-        self._edgelist.addOrigin(prevBreakpoint._halfedge, coord)
-        self._edgelist.addOrigin(nextBreakpoint._halfedge, coord)
-
-        # making new edge
-        newHalf = self._edgelist.addEdge(coord, prevLeaf._site, nextLeaf._site)
-        newHalf._origin = coord
-        vert._incidentEdge = newHalf
-        freshBreakpoint._halfedge = newHalf
-
-        # assign next and previous
-        self._edgelist.assignAdjacency(coord, prevBreakpoint._halfedge, nextBreakpoint._halfedge)
 
         # check for circle self._events
         toLeft = self._status.prevLeaf(prevLeaf)
@@ -161,8 +148,8 @@ if __name__ == "__main__":
     # points = [[0.19, 0.68], [0.46, 0.09], [0.95, 0.89]]
     # points = [[0.86, 0.37], [0.38, 0.21], [0.1, 0.51], [0.81, 0.68]]
     # points = [[0.13, 0.29], [0.57, 0.47], [0.05, 0.62]]
-    points = [[0.51, 0.92], [0.62, 0.82], [0.21, 0.98]]
-#     points = Calc.getPoints(3)
+    # points = [[0.51, 0.92], [0.62, 0.82], [0.21, 0.98]]
+    points = Calc.getPoints(3)
 
     diagram = Voronoi(points)
     print(diagram._edgelist)

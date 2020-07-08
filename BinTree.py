@@ -22,10 +22,7 @@ class Node:
         if parent == None:
             self._depth = 0
         else:
-            self._depth = parent.depth() + 1
-
-    def depth(self):
-        return self._depth
+            self._depth = parent._depth + 1
 
     def addRight(self, version, data1, data2):
         self._right = Node(self, version, data1, data2)
@@ -35,12 +32,6 @@ class Node:
         self._left = Node(self, version, data1, data2)
         return self._left
     
-    def getX(self):
-        if self._version == 'arc':
-            return self._site[0]
-        else:
-            return 'breakpoint'
-        
     def fullprint(self, prefix='', isLast=True):
         currLine = prefix
         if isLast:
@@ -71,12 +62,7 @@ class BinTree:
         self._root = None
         self._size = 0
         self._height = 0
-        self._last = None
-        self._first = None
 
-    def root(self):
-        return self._root
-    
     def empty(self):
         return self._size == 0
 
@@ -91,18 +77,13 @@ class BinTree:
             self._root = Node(None, version, data1, data2)
             self._size = 1
             self._height = 1
-            self._first = self._root
-            self._last = self._root
             return self._root
         else:
             print("oops already has root")
             return self._root
     
-    def isRoot(self, node):
-        return node == self._root
-
     def findArc(self, site):
-        node = self.root()
+        node = self._root
         print()
         print(' . . . searching')
         print('site: {}'.format(site))
@@ -115,47 +96,16 @@ class BinTree:
                 node = node._right
         print('found node: {}'.format(node))
         return node
-    
-    def isRightChild(self, node):
-        if node._parent != None:
-            if node._parent._right == node:
-                return True
-        return False
 
-    def isLeftChild(self, node):
-        if node._parent != None:
-            if node._parent._left == node:
-                return True
-        return False
-
-    def successor(self, node):
-        if node._right == None:
-            child = node
-            node = node._parent
-            while not (node._parent == None):
-                if node._left == child:
-                    return node
-                child = node
-                node = node._parent
-            return node
-        else:
-            return self.getMin(node._right)
-    
     def getMin(self, node):
-        if node == None:
-            node = self.root()
-        while not (node == None):
-            node = node._left
-        return node._parent
+        if node._left == None:
+            return node
+        return self.getMin(node._left)
     
     def getMax(self, node):
-        if node == None:
-            node = self.root()
-        while not (node == None):
-            if node._right == None:
-                return node
-            node = node._right
-        return node
+        if node._right == None:
+            return node
+        return self.getMax(node._right)
             
     def predecessor(self, node):
         if node._left == None:
@@ -170,12 +120,26 @@ class BinTree:
         else:
             return self.getMax(node._left)
         
-    def nextLeaf(self, node):
-        if not self.isLast(node):
-            successor = self.successor(node)
-            return self.lowestLeaf(successor._right)
+    def successor(self, node):
+        if node._right == None:
+            child = node
+            node = node._parent
+            while not (node._parent == None):
+                if node._left == child:
+                    return node
+                child = node
+                node = node._parent
+            return node
         else:
-            return None
+            return self.getMin(node._right)
+    
+    def remove(self, node):
+        self._size -= 1
+        p = node._parent # trying to remove root, or parent's null
+        if p._left == node:
+            p._left = None
+        else:
+            p._right = None
 
     def replace(self, old, new):
         self.remove(new)
@@ -193,81 +157,44 @@ class BinTree:
             return self.lowestLeaf(node._right)
         else:
             return node
-
-    def prevLeaf(self, node):
-        if not self.isFirst(node):
-            predecessor = self.predecessor(node)
-            return self.highestLeaf(predecessor._left)
-        else:
-            return None
     
     def highestLeaf(self, node):
         if node._right != None:
             return self.highestLeaf(node._right)
-        if node._left != None:
+        elif node._left != None:
             return self.highestLeaf(node._left)
         else:
             return node
 
-    def remove(self, node):
-        if node == self.root():
-            print('trying to remove root')
-            return
-        p = node._parent
-        if p._left == node:
-            p._left = None
+    def nextLeaf(self, node):
+        if not (node == self.getMax(self._root)):
+            successor = self.successor(node)
+            return self.lowestLeaf(successor._right)
         else:
-            p._right = None
-        if node == self._first:
-            self.resetFirst()
-        elif node == self._last:
-            self.resetLast()
-        self._size -= 1
+            return None
+
+    def prevLeaf(self, node):
+        if not (node == self.getMin(self._root)):
+            predecessor = self.predecessor(node)
+            return self.highestLeaf(predecessor._left)
+        else:
+            return None
 
     def addRight(self, node, version, data1, data2=None):
         node.addRight(version, data1, data2)
         self._size += 1
-        depth = node._right.depth()
+        depth = node._right._depth
         if depth + 1 > self._height:
             self._height = depth + 1
-        if version == 'arc':
-            self.resetLast()
         return node._right
 
     def addLeft(self, node, version, data1, data2=None):
         node.addLeft(version, data1, data2)
         self._size += 1
-        depth = node._left.depth()
+        depth = node._left._depth
         if depth + 1 > self._height:
             self._height = depth + 1
-        if version == 'arc':
-            self.resetFirst()
         return node._left
-    
-    def isExternal(self, node):
-        return node._right == None and node._left == None
-    
-    def isLast(self, node):
-        return self._last == node
 
-    def isFirst(self, node):
-        return self._first == node
-    
     def __str__(self):
-        return 'BinTree: \n' + str(self.root())
-
-    def resetFirst(self):
-        node = self.root()
-        while node._left != None:
-            node = node._left
-        self._first = node
-        if node._version != 'arc':
-            print('the tree has a breakpoint first')
-
-    def resetLast(self):
-        node = self.root()
-        while node._right != None:
-            node = node._right
-        self._last = node
-        if node._version != 'arc':
-            print('the tree has a breakpoint last')
+        return 'BinTree: \n' + str(self._root)

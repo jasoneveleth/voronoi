@@ -74,9 +74,8 @@ class Heap:
         return self._array[int(ceil(event._index/2.0) - 1)]
     
     def maxChild(self, event):
-        if self.size() <= 2 * event._index + 2:
-            return self._array[2 * event._index + 1]
-        if self._array[2 * event._index + 1].key() > self._array[2 * event._index + 2].key():
+        if (self.size() <= 2 * event._index + 2
+            or self._array[2 * event._index + 1].key() > self._array[2 * event._index + 2].key()):
             return self._array[2 * event._index + 1]
         return self._array[2 * event._index + 2]
 

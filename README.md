@@ -27,9 +27,9 @@ handleSiteEvent(event)
 5.  remove false alarm circle event (if oldNode has an event)
 6.  attach a subtree where oldNode used to be with two new breakpoints and 
     three new edges like this:
-                    [A,B]
+      A    ->       [A,B]
                     /   \
-      A    ->      A    [B,A]
+                   A    [B,A]
                         /   \
                        B     A
 7.  set the breakpoint's half edges as twins
