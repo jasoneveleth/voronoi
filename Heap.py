@@ -11,7 +11,7 @@ class Event:
             self._leaf = data
             self._point = Calc.circleBottom(p1, p2, p3)
         else:
-            print("yoinks, non-event")
+            raise TypeError("yoinks, non-event")
     
     def key(self):
         if self._kind == 'site event':

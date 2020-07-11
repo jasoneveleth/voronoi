@@ -15,7 +15,7 @@ class Node:
             self._site = None
             self._event = None
         else:
-            print("yikes wrong version")
+            raise TypeError("yikes wrong version")
 
         self._left = None
         self._right = None
@@ -79,22 +79,17 @@ class BinTree:
             self._height = 1
             return self._root
         else:
-            print("oops already has root")
+            raise BinTreeRootError("oops already has root")
             return self._root
     
     def findArc(self, site):
         node = self._root
-        print()
-        print(' . . . searching')
-        print('site: {}'.format(site))
         while node._version != 'arc':
             intersection = Calc.intersect(node._breakpoint, site[1])
-            print('intersection: {}'.format(intersection))
             if site[0] < intersection[0]:
                 node = node._left
             else:
                 node = node._right
-        print('found node: {}'.format(node))
         return node
 
     def getMin(self, node):

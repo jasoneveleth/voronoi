@@ -34,15 +34,12 @@ class DCEL:
     
     def incidentEdges(self, vertex):
         incidentEdges = []
-        edge = vertex._incidentEdge
-        if edge._origin == vertex:
-            while True:
-                incidentEdges.append(edge)
-                edge = edge._twin
-                incidentEdges.append(edge)
-                edge = edge._next
-                if vertex._incidentEdge == edge:
-                    break
+        edge = vertex._incidentEdge._next
+        while vertex._incidentEdge != edge:
+            incidentEdges.append(edge)
+            edge = edge._twin
+            incidentEdges.append(edge)
+            edge = edge._next
     
     def assignAdjacency(self, coord, edge1, edge2):
         if edge1._origin != coord:
@@ -75,13 +72,6 @@ class DCEL:
         vertex = Vertex(xy)
         return vertex
     
-    def addOrigin(self, node, coord):
-        if node._origin is None:
-            node._origin = coord
-        else:
-            node._twin._origin = coord
-            print("PANIC")
-
     def addEdge(self, point, site1, site2):
         edge = HalfEdge()
         self._edges.append(edge)
@@ -112,14 +102,11 @@ class DCEL:
         if (y1[0] >= 0) and (y1[0] <= 1):
             useful.append(y1)
 
-#         print('{} {} {}'.format(point, site1, site2))
-#         print('{} {} {} {}'.format(x0, x1, y0, y1))
         # INTERSECTION THAT GOES TO THE LEFT IS ASSIGNED TO EDGE
         left = useful[1] if useful[1][0] <= useful[0][0] else useful[0]
         right = useful[0] if useful[1][0] <= useful[0][0] else useful[1]
         edge._vector = [left[0] - point[0], left[1] - point[1]]
         edge._twin._vector = [right[0] - point[0], right[1] - point[1]]
-        print('left: {}'.format(left))
         return edge
     
     def dest(self, edge):
