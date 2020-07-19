@@ -99,6 +99,8 @@ def converge(bp1, bp2):
     else:
         return False
 
+pointsOutward = lambda o,v: (o is not None) and (extend(o, v) is None)
+
 def notEqual(n, m):
     return round(n*(10**8))/(10**8) != round(m*(10**8))/(10**8)
 

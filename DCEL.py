@@ -89,13 +89,7 @@ class DCEL:
 
     def initCircleVector(self, edge, site1, site2, bottom):
         point = edge._point
-        # if site1[0] > site2[0]:
-        #     temp = site1
-        #     site1 = site2
-        #     site2 = temp
         futurePt = Calc.intersect([site1, site2], bottom[1]-0.1)
-        print('future')
-        print(futurePt)
         edge._vector = Calc.subtract(futurePt, point)
         edge._origin = point
         edge._twin._vector = [-edge._vector[0], -edge._vector[1]]
