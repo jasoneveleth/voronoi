@@ -31,30 +31,22 @@ class Node:
     def addLeft(self, version, data1, data2):
         self._left = Node(self, version, data1, data2)
         return self._left
-    
-    def fullprint(self, prefix='', isLast=True):
-        currLine = prefix
-        if isLast:
-            currLine += "`- *" + self._version + "* "
-            prefix += "   "
-        else:
-            currLine += "|- *" + self._version + "* "
-            prefix += "|  "
-        if self._version == 'breakpoint':
-            currLine += "breakpoint: {} halfedge: '{}'\n".format(self._breakpoint, self._halfedge)
-        else:
-            currLine += "site: {}\n".format(self._site)
-        if self._left != None:
-            if self._right != None:
-                return currLine + self._left.fullprint(prefix, False) + self._right.fullprint(prefix, True)
-            else:
-                return currLine + self._left.fullprint(prefix, True)
-        elif self._right != None:
-            return currLine + self._right.fullprint(prefix, True)
-        return currLine
 
-    def __str__(self):
-        return self.fullprint()
+    def getInfo(self):
+        if self._version == 'breakpoint':
+            return "breakpoint: {} halfedge: <{}>\n".format(self._breakpoint, self._halfedge)
+            # return "breakpoint: {}\n".format(self._breakpoint)
+        else:
+            return "site: {}\n".format(self._site)
+    
+    def __str__(self, prefix='', isLast=True):
+        currLine = prefix + ("`- " if isLast else "|- ") + self.getInfo()
+        prefix += "   " if isLast else "|  "
+        children = [child for child in [self._left, self._right] if child]
+        for i,child in enumerate(children):
+            last = (i == len(children) - 1)
+            currLine += child.__str__(prefix, last)
+        return currLine
 
 
 class BinTree:

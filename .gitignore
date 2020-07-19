@@ -1,0 +1,6 @@
+tags
+*.swp
+.DS_Store
+.git/
+convert.py
+*.pyc

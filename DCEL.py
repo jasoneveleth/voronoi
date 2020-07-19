@@ -1,3 +1,5 @@
+import Calc
+
 class Vertex:
     def __init__(self, coordinates):
         self._coordinates = coordinates
@@ -5,7 +7,6 @@ class Vertex:
     
     def __str__(self):
         return 'coordinates: ' + str(self._coordinates)
-
 
 class HalfEdge:
     def __init__(self):
@@ -70,45 +71,55 @@ class DCEL:
     
     def addVertex(self, xy):
         vertex = Vertex(xy)
+        self._vertices.append(vertex)
         return vertex
     
-    def addEdge(self, point, site1, site2):
+    def addEdge(self, point):
         edge = HalfEdge()
-        self._edges.append(edge)
         edge._twin = HalfEdge()
-        edge._twin._twin = edge
+        self._edges.append(edge)
         self._edges.append(edge._twin)
         edge._point = point
         edge._twin._point = point
+        edge._twin._twin = edge
+        return edge
 
+    def removeEdge(self, edge):
+        self._edges.pop(self._edges.index(edge))
+
+    def initCircleVector(self, edge, site1, site2, bottom):
+        point = edge._point
+        # if site1[0] > site2[0]:
+        #     temp = site1
+        #     site1 = site2
+        #     site2 = temp
+        futurePt = Calc.intersect([site1, site2], bottom[1]-0.1)
+        print('future')
+        print(futurePt)
+        edge._vector = Calc.subtract(futurePt, point)
+        edge._origin = point
+        edge._twin._vector = [-edge._vector[0], -edge._vector[1]]
+    
+    def initSiteVector(self, edge, site1, site2):
         if site1[0] > site2[0]:
             temp = site1
             site1 = site2
             site2 = temp
 
-        slope = (site2[1] - site1[1])/(site2[0] - site1[0])
-        x0 = [0,-1.0/slope * (0-point[0]) + point[1]]
-        x1 = [1,-1.0/slope * (1-point[0]) + point[1]]
-        y0 = [-slope * (0-point[1]) + point[0],0]
-        y1 = [-slope * (1-point[1]) + point[0],1]
-        
-        useful = []
-        if (x0[1] > 0) and (x0[1] < 1):
-            useful.append(x0)
-        if (x1[1] > 0) and (x1[1] < 1):
-            useful.append(x1)
-        if (y0[0] >= 0) and (y0[0] <= 1):
-            useful.append(y0)
-        if (y1[0] >= 0) and (y1[0] <= 1):
-            useful.append(y1)
+        if site1[0] - site2[0] == 0:
+            leftVector = [-1,0]
+            rightVector = [1, 0]
+        elif site1[1] - site2[1] == 0:
+            leftVector = [0, 1]
+            rightVector = [0, -1]
+        else:
+            slope = (site2[1] - site1[1])/(site2[0] - site1[0])
+            leftVector = [-1, 1.0/slope]
+            rightVector = [1, -1.0/slope]
 
-        # INTERSECTION THAT GOES TO THE LEFT IS ASSIGNED TO EDGE
-        left = useful[1] if useful[1][0] <= useful[0][0] else useful[0]
-        right = useful[0] if useful[1][0] <= useful[0][0] else useful[1]
-        edge._vector = [left[0] - point[0], left[1] - point[1]]
-        edge._twin._vector = [right[0] - point[0], right[1] - point[1]]
-        return edge
-    
+        edge._vector = leftVector
+        edge._twin._vector = rightVector
+
     def dest(self, edge):
         return edge._twin._origin
 

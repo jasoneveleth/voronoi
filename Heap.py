@@ -12,7 +12,7 @@ class Event:
             self._point = Calc.circleBottom(p1, p2, p3)
         else:
             raise TypeError("yoinks, non-event")
-    
+
     def key(self):
         if self._kind == 'site event':
             return self._site[1]

@@ -17,14 +17,14 @@ class Voronoi:
 
         while not self._events.empty():
             event = self._events.removeMax()
-            # print(self._status)
+            print(self._status)
             if event._kind == 'site event':
                 print('site event')
                 self.handleSiteEvent(event)
             else:
                 print('circle event')
                 self.handleCircleEvent(event._leaf)
-            # print(self._status)
+            print(self._status)
             print('-----------------------------------------------------------')
         self.finishDiagram(points)
         self.plot(points)
@@ -34,6 +34,7 @@ class Voronoi:
             self._status.addRoot('arc', event._site, None)
             return
         oldNode = self._status.findArc(event._site)
+        point = Calc.getProjection(event._site, oldNode._site)
 
         # Remove false alarm
         if oldNode._event != None:
@@ -43,10 +44,8 @@ class Voronoi:
         # add subtree
         oldNode._version = 'breakpoint'
         oldNode._breakpoint = [oldNode._site, event._site]
-        point = Calc.getProjection(event._site, oldNode._site)
-        oldNode._halfedge = self._edgelist.addEdge(point, 
-                                                   oldNode._site, 
-                                                   event._site)
+        oldNode._halfedge = self._edgelist.addEdge(point)
+        self._edgelist.initSiteVector(oldNode._halfedge, oldNode._site, event._site)
         newBp = self._status.addRight(oldNode, 
                                       'breakpoint', 
                                       [event._site, oldNode._site],
@@ -56,10 +55,8 @@ class Voronoi:
         oldArcRight = self._status.addRight(newBp, 'arc', oldNode._site)
         oldNode._site = None
 
-        # update edges
-        oldNode._halfedge._twin = newBp._halfedge
-        newBp._halfedge._twin = oldNode._halfedge
-        
+        # if self._status.size() > 5:
+            # print(oldNode)
         # check for new circle events
         toLeft = self._status.prevLeaf(oldArcLeft)
         if toLeft is not None:
@@ -76,38 +73,31 @@ class Voronoi:
         nextBreakpoint = self._status.successor(leaf)
         prevBreakpoint = self._status.predecessor(leaf)
         self._status.remove(leaf)
-
         coord = Calc.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
+        bottom = Calc.circleBottom(prevLeaf._site, leaf._site, nextLeaf._site)
+
+        prevBreakpoint._halfedge._twin._origin = coord
+        nextBreakpoint._halfedge._twin._origin = coord
         vert = self._edgelist.addVertex(coord)
-        prevBreakpoint._halfedge._origin = coord
-        nextBreakpoint._halfedge._origin = coord
-        newHalf = self._edgelist.addEdge(coord, prevLeaf._site, nextLeaf._site)
+        newHalf = self._edgelist.addEdge(coord)
         vert._incidentEdge = newHalf
 
-        bottom = Calc.circleBottom(prevLeaf._site, leaf._site, nextLeaf._site)
-        futurePt = Calc.intersect([prevLeaf._site, nextLeaf._site], bottom[1]-0.2)
-        if Calc.endingEdge(futurePt, newHalf._point, newHalf._vector):
-            endingEdge = newHalf
-        else:
-            endingEdge = newHalf._twin
-        endingEdge._origin = coord
-
-        # assign next and previous
-        self._edgelist.assignAdjacency(coord, 
-                                       prevBreakpoint._halfedge, 
-                                       nextBreakpoint._halfedge)
+        el = self._edgelist
+        el.assignAdjacency(coord, prevBreakpoint._halfedge, nextBreakpoint._halfedge)
 
         # readjusting tree
         if nextBreakpoint == leaf._parent:
             self._status.replace(nextBreakpoint, nextBreakpoint._right)
             prevBreakpoint._breakpoint[1] = nextLeaf._site
-            prevBreakpoint._halfedge = endingEdge._twin
+            remainingBp = prevBreakpoint # or upper
         elif prevBreakpoint == leaf._parent:
             self._status.replace(prevBreakpoint, prevBreakpoint._left)
-            nextBreakpoint._breakpoint[1] = prevLeaf._site
-            nextBreakpoint._halfedge = endingEdge._twin
+            nextBreakpoint._breakpoint[0] = prevLeaf._site
+            remainingBp = nextBreakpoint # AKA upper
         else:
             raise AssumptionError('our assumptions were wrong, our worst fear')
+        remainingBp._halfedge = newHalf
+        el.initCircleVector(newHalf, remainingBp._breakpoint[0], remainingBp._breakpoint[1], bottom)
 
         # remove false alarm circle self._events
         if nextLeaf._event != None:
@@ -135,10 +125,49 @@ class Voronoi:
             center._event = e
 
     def finishDiagram(self, points):
+        toRemove = set()
         for e in self._edgelist.edges():
-            if e._origin is None:
-                e._origin = Calc.sumVectors(e._point, e._vector)
-                self._edgelist.addVertex(e._origin)
+            t = e._twin
+            print(e._origin, e._point, e._vector)
+            theyExist = (e._origin is not None) and (t._origin is not None)
+            neitherExist = (e._origin is None) and (t._origin is None)
+            if theyExist and not Calc.isOutside(e._origin) and not Calc.isOutside(t._origin):
+                continue
+            elif theyExist and Calc.isOutside(e._origin) and Calc.isOutside(t._origin):
+                toRemove.add(e)
+                toRemove.add(t)
+            elif theyExist and (Calc.isOutside(e._origin) or Calc.isOutside(t._origin)):
+                outside = e if Calc.isOutside(e._origin) else t
+                outside._origin = Calc.extend(outside._twin._origin, outside._twin._vector)
+            # we know they don't _both_ exist
+            elif neitherExist:
+                if Calc.isOutside(e._point):
+                    if Calc.extend(t._origin) is None:
+                        e._origin = Calc.shorten(e._point, e._vector)
+                        t._origin = Calc.extend(e._point, e._vector)
+                    elif Calc.extend(e._origin) is None:
+                        e._origin = Calc.shorten(t._point, t._vector)
+                        t._origin = Calc.extend(t._point, t._vector)
+                    else:
+                        raise AssumptionError('missing cases')
+                else:
+                    e._origin = Calc.extend(e._point, e._vector)
+                    t._origin = Calc.extend(t._point, t._vector)
+            existing = e if not (e._origin is None) else t
+            if (not neitherExist) and Calc.isOutside(existing._origin):
+                if Calc.extend(existing._origin, existing._vector) is None:
+                    toRemove.add(e)
+                    toRemove.add(t)
+                else:
+                    existing._twin._origin = Calc.extend(existing._origin, existing._vector)
+                    existing._origin = Calc.shorten(existing._origin, existing._vector)
+            elif (not neitherExist) and not Calc.isOutside(existing._origin):
+                existing._twin._origin = Calc.extend(existing._origin, existing._vector)
+            else:
+                raise AssumptionError('missing cases for real')
+
+        for e in toRemove:
+            self._edgelist.removeEdge(e)
         # TODO traverse the half edges to add the cell records and the pointers to and from them
 
     def plot(self, sites=None):
@@ -163,6 +192,7 @@ if __name__ == "__main__":
     # points = [[0.13, 0.29], [0.57, 0.47], [0.05, 0.62]]
     # points = [[0.88, 0.26], [0.26, 0.12], [0.67, 0.43]]
     # points = [[0.51, 0.92], [0.62, 0.82], [0.21, 0.98]]
+    # points = [[0.34, 0.52], [0.4, 0.05], [0.4, 0.7]]
     # points = [[0.7, 0.51],
               # [0.32, 0.05], 
               # [0.67, 0.13], 
@@ -172,7 +202,10 @@ if __name__ == "__main__":
               # [0.58, 0.73], 
               # [0.22, 0.96],
               # ]
-
+    # points = [[0.69, 0.49], [0.5, 0.11], [0.75, 0.7]]
+    points = [[0.83, 0.36], [0.27, 0.25], [0.23, 0.41], [0.18, 0.42]]
+    # points = [[1.0, 0.2], [0.61, 0.86], [0.8, 0.4], [0.95, 0.54]]
+    points = [[0.5, 0.93], [0.51, 0.05], [0.42, 0.57], [0.93, 0.86]]
     points = Calc.getPoints(3)
 
     print(points)
