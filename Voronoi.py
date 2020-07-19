@@ -126,11 +126,12 @@ class Voronoi:
 
     def finishDiagram(self, points):
         toRemove = set()
+        print([str(i) for i in self._edgelist.edges()])
         for e in self._edgelist.edges():
             t = e._twin
-            print(e._origin, e._point, e._vector)
             theyExist = (e._origin is not None) and (t._origin is not None)
             neitherExist = (e._origin is None) and (t._origin is None)
+            existing = e if not (e._origin is None) else t # gives _an_ existing edge
             if theyExist and not Calc.isOutside(e._origin) and not Calc.isOutside(t._origin):
                 continue
             elif theyExist and Calc.isOutside(e._origin) and Calc.isOutside(t._origin):
@@ -142,10 +143,10 @@ class Voronoi:
             # we know they don't _both_ exist
             elif neitherExist:
                 if Calc.isOutside(e._point):
-                    if Calc.extend(t._origin) is None:
+                    if Calc.extend(t._point, t._vector) is None:
                         e._origin = Calc.shorten(e._point, e._vector)
                         t._origin = Calc.extend(e._point, e._vector)
-                    elif Calc.extend(e._origin) is None:
+                    elif Calc.extend(e._point, e._vector) is None:
                         e._origin = Calc.shorten(t._point, t._vector)
                         t._origin = Calc.extend(t._point, t._vector)
                     else:
@@ -153,8 +154,7 @@ class Voronoi:
                 else:
                     e._origin = Calc.extend(e._point, e._vector)
                     t._origin = Calc.extend(t._point, t._vector)
-            existing = e if not (e._origin is None) else t
-            if (not neitherExist) and Calc.isOutside(existing._origin):
+            elif (not neitherExist) and Calc.isOutside(existing._origin):
                 if Calc.extend(existing._origin, existing._vector) is None:
                     toRemove.add(e)
                     toRemove.add(t)
