@@ -22,7 +22,6 @@ n12 = tree.addRight(n5, 'arc', None, None)
 n13 = tree.addLeft(n6, 'arc', None, None)
 n14 = tree.addRight(n6, 'arc', None, None)
 
-print(tree)
 
 
 
@@ -38,7 +37,6 @@ print(tree)
 # f1 = [random(),random()]
 # f2 = [random(),random()]
 # dr = random() - 1
-# print(tree.intersect([f1,f2], dr))
 
 
 
@@ -53,19 +51,11 @@ print(tree)
 # e9 = heap.insert('site event', [0,9])
 # e2 = heap.insert('site event', [0,2])
 # heap.remove(e7)
-# print(heap.removeMax() == e9)
-# print(heap.removeMax() == e8)
-# print(heap.removeMax() == e7)
-# print(heap.removeMax() == e6)
-# print(heap.removeMax() == e5)
-# print(heap.removeMax() == e4)
-# print(heap.removeMax() == e2)
 
 e = Event('site event', 'nothing', 'nothing')
 # a = [random(),random()]
 # b = [random(),random()]
 # c = [random(),random()]
-# print(str(a) + " " + str(b) + " " + str(c))
 # a = [0,1]
 # b = [-1,0]
 # c = [1,0]
@@ -75,7 +65,3 @@ e = Event('site event', 'nothing', 'nothing')
 #     if round(i*1000)/1000.0 != round(j*1000)/1000.0:
 #         boolean = False
 
-# print(boolean)
-# print(e.circum(a, b, c))
-print(e.circum([0.36,0.6],[0.56,0.69],[0.3,0.62]))
-# print(heap.intersect([0.36,0.6],[0.56,0.69],[0.3,0.62])

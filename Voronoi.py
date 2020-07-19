@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import Calc
 from matplotlib.collections import LineCollection as LineColl
+from functools import reduce
 from BinTree import BinTree
 from DCEL import DCEL
 from Heap import Heap
@@ -17,17 +18,18 @@ class Voronoi:
 
         while not self._events.empty():
             event = self._events.removeMax()
-            print(self._tree)
+            # print(self._tree)
             if event._kind == 'site event':
-                print('site event')
+                # print('site event')
                 self.handleSiteEvent(event)
             else:
-                print('circle event')
+                # print('circle event')
                 self.handleCircleEvent(event._leaf)
-            print(self._tree)
-            print('-----------------------------------------------------------')
+            # print(self._tree)
+            # print('-----------------------------------------------------------')
         self.finishDiagram(points)
         self.plot(points)
+        # TODO traverse the half edges to add the cell records and the pointers to and from them
 
     def handleSiteEvent(self, event):
         if self._tree.empty():
@@ -71,11 +73,10 @@ class Voronoi:
 
         prevBreakpoint._halfedge._twin._origin = coord
         nextBreakpoint._halfedge._twin._origin = coord
+        self._edgelist.assignAdjacency(coord, prevBreakpoint._halfedge, nextBreakpoint._halfedge)
         vert = self._edgelist.addVertex(coord)
         newHalf = self._edgelist.addEdge(coord)
         vert._incidentEdge = newHalf
-
-        self._edgelist.assignAdjacency(coord, prevBreakpoint._halfedge, nextBreakpoint._halfedge)
 
         # readjusting tree
         if nextBreakpoint == leaf._parent:
@@ -121,42 +122,29 @@ class Voronoi:
         toRemove = set()
         for e in self._edgelist.edges():
             t = e._twin
-            theyExist = (e._origin is not None) and (t._origin is not None)
-            neitherExist = (e._origin is None) and (t._origin is None)
-            existing = e if not (e._origin is None) else t # gives _an_ existing edge (or t if neither exist)
-            if neitherExist:
+            exists = lambda x: x is not None
+            if not (exists(e._origin) or exists(t._origin)):
                 if Calc.isOutside(e._point):
-                    if Calc.extend(t._point, t._vector) is None:
-                        e._origin = Calc.shorten(e._point, e._vector)
-                        t._origin = Calc.extend(e._point, e._vector)
-                    elif Calc.extend(e._point, e._vector) is None:
-                        e._origin = Calc.shorten(t._point, t._vector)
-                        t._origin = Calc.extend(t._point, t._vector)
+                    inward = e if (Calc.extend(t._point, t._vector) is None) else t # note that e if ...t... else t (not e if ...e...)
+                    inward._origin = Calc.shorten(inward._point, inward._vector)
+                    inward._twin._origin = Calc.extend(inward._point, inward._vector)
                 else:
-                    e._origin = Calc.extend(e._point, e._vector)
-                    t._origin = Calc.extend(t._point, t._vector)
+                    e._origin = Calc.shorten(e._point, e._vector)
+                    t._origin = Calc.shorten(t._point, t._vector)
             else:
                 if Calc.pointsOutward(e._origin, e._vector) or Calc.pointsOutward(t._origin, t._vector):
                     toRemove.add(e)
                     toRemove.add(t)
-                elif theyExist and not Calc.isOutside(e._origin) and not Calc.isOutside(t._origin):
-                    continue
-                elif theyExist and (Calc.isOutside(e._origin) or Calc.isOutside(t._origin)):
-                    outside = e if Calc.isOutside(e._origin) else t
-                    outside._origin = Calc.extend(outside._twin._origin, outside._twin._vector)
-                elif (not neitherExist) and Calc.isOutside(existing._origin):
-                    if Calc.extend(existing._origin, existing._vector) is None:
-                        toRemove.add(e)
-                        toRemove.add(t)
-                    else:
-                        existing._twin._origin = Calc.extend(existing._origin, existing._vector)
-                        existing._origin = Calc.shorten(existing._origin, existing._vector)
-                elif (not neitherExist) and not Calc.isOutside(existing._origin):
+                elif exists(e._origin) and exists(t._origin):
+                    for outside in filter(lambda x: Calc.isOutside(x._origin), [e,t]):
+                        outside._origin = Calc.shorten(outside._origin, outside._vector) # change to shorten on non-twin??
+                else: # only one exists
+                    existing = e if not (e._origin is None) else t # gives _an_ existing edge (or t if neither exist)
                     existing._twin._origin = Calc.extend(existing._origin, existing._vector)
-
+                    if Calc.isOutside(existing._origin):
+                        existing._origin = Calc.shorten(existing._origin, existing._vector)
         for e in toRemove:
             self._edgelist.removeEdge(e)
-        # TODO traverse the half edges to add the cell records and the pointers to and from them
 
     def plot(self, sites=None):
         # plot sites
@@ -175,24 +163,16 @@ class Voronoi:
         plt.show()
 
 if __name__ == "__main__":
-    # points = [[0.19, 0.68], [0.46, 0.09], [0.95, 0.89]]
-    # points = [[0.86, 0.37], [0.38, 0.21], [0.1, 0.51], [0.81, 0.68]]
-    # points = [[0.13, 0.29], [0.57, 0.47], [0.05, 0.62]]
-    # points = [[0.88, 0.26], [0.26, 0.12], [0.67, 0.43]]
-    # points = [[0.51, 0.92], [0.62, 0.82], [0.21, 0.98]]
-    # points = [[0.34, 0.52], [0.4, 0.05], [0.4, 0.7]]
-    # points = [[0.69, 0.49], [0.5, 0.11], [0.75, 0.7]]
-    # points = [[1.0, 0.2], [0.61, 0.86], [0.8, 0.4], [0.95, 0.54]]
-    # points = [[0.25, 0.59], [0.61, 0.44], [0.73, 0.2], [0.32, 0.47], [0.99, 0.46], [0.59, 0.87], [0.32, 0.76]]
-    points = [[0.83, 0.36], [0.27, 0.25], [0.23, 0.41], [0.18, 0.42]]
-    points = [[0.5, 0.93], [0.51, 0.05], [0.42, 0.57], [0.93, 0.86]]
-    points = [[0.85, 0.51], [0.97, 0.99], [0.22, 0.21], [0.07, 0.1]]
-    points = [[0.99, 0.7], [0.53, 0.4], [0.5, 0.1], [0.29, 0.96]]
-    points = Calc.getPoints(4)
+    points = [[0.83, 0.54], [0.44, 0.27], [0.96, 0.58], [0.57, 0.49], [0.08, 0.81]] # complex
+    points = [[0.06, 0.94], [0.92, 0.82], [0.29, 0.91], [0.22, 0.27], [0.69, 0.72]] # "
+    # points = [[0.73, 0.82], [0.51, 0.68], [0.43, 0.74], [0.08, 0.0], [0.11, 0.31], [0.29, 0.25]] # assumption error
+    # points = [[0.17, 0.8], [0.03, 0.65], [0.34, 0.11], [0.93, 0.35], [0.93, 0.61], [0.27, 0.49]] # list assignment out of range
+    # points = [[0.05, 0.94], [0.26, 0.77], [0.25, 0.5], [0.71, 0.08], [0.91, 0.82], [0.19, 0.45], [0.85, 0.37]]
+    # points = [[0.42, 0.23], [0.37, 0.19], [0.46, 0.14], [0.17, 0.7], [0.81, 0.04], [0.16, 0.91], [0.33, 0.42], [0.42, 0.59], [0.48, 0.71], [0.46, 0.8], [0.52, 0.46], [0.83, 0.07], [0.29, 0.51], [0.29, 0.82], [0.02, 0.44], [0.1, 0.58], [0.73, 0.76], [0.01, 0.62]]
+    # points = Calc.getPoints(18)
 
     print(points)
     diagram = Voronoi(points)
-    # print(diagram._edgelist)
 
 """Possible bugs: 
 - if the sites fed to the circle algorithm are colinear

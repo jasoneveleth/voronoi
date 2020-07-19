@@ -129,7 +129,10 @@ class BinTree:
             p._right = None
 
     def replace(self, old, new):
+        """ Replaces every attribute except parent
+        """
         self.remove(new)
+        old._version = new._version
         old._site = new._site
         old._event = new._event
         old._breakpoint = new._breakpoint
