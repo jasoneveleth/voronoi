@@ -18,17 +18,16 @@ class Voronoi:
 
         while not self._events.empty():
             event = self._events.removeMax()
-            # print(self._tree)
+            print(self._tree)
             if event._kind == 'site event':
-                # print('site event')
+                print('site event')
                 self.handleSiteEvent(event)
             else:
-                # print('circle event')
+                print('circle event')
                 self.handleCircleEvent(event._leaf)
-            # print(self._tree)
-            # print('-----------------------------------------------------------')
+            print(self._tree)
+            print('-----------------------------------------------------------')
         self.finishDiagram(points)
-        self.plot(points)
         # TODO traverse the half edges to add the cell records and the pointers to and from them
 
     def handleSiteEvent(self, event):
@@ -60,15 +59,17 @@ class Voronoi:
         toRight = self._tree.nextLeaf(oldArcRight)
         if toRight is not None:
             self.checkNewCircle(newArc, oldArcRight, toRight)
-        
 
     def handleCircleEvent(self, leaf):
+        print(leaf._parent)
         nextLeaf = self._tree.nextLeaf(leaf)
         prevLeaf = self._tree.prevLeaf(leaf)
         nextBreakpoint = self._tree.successor(leaf)
         prevBreakpoint = self._tree.predecessor(leaf)
+        print(leaf in self._tree.getNodes())
         self._tree.remove(leaf)
         coord = Calc.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
+        print(prevLeaf._site, leaf._site, nextLeaf._site)
         bottom = Calc.circleBottom(prevLeaf._site, leaf._site, nextLeaf._site)
 
         prevBreakpoint._halfedge._twin._origin = coord
@@ -78,15 +79,19 @@ class Voronoi:
         newHalf = self._edgelist.addEdge(coord)
         vert._incidentEdge = newHalf
 
+        # self._tree.diagnostic()
+        # print(leaf)
+        # print(leaf._parent)
+
         # readjusting tree
         if nextBreakpoint == leaf._parent:
-            self._tree.replace(nextBreakpoint, nextBreakpoint._right)
+            self._tree.replaceWithChild(nextBreakpoint, nextBreakpoint._right)
             prevBreakpoint._breakpoint[1] = nextLeaf._site
-            remainingBp = prevBreakpoint # or upper
+            remainingBp = prevBreakpoint
         elif prevBreakpoint == leaf._parent:
-            self._tree.replace(prevBreakpoint, prevBreakpoint._left)
+            self._tree.replaceWithChild(prevBreakpoint, prevBreakpoint._left)
             nextBreakpoint._breakpoint[0] = prevLeaf._site
-            remainingBp = nextBreakpoint # AKA upper
+            remainingBp = nextBreakpoint
         else:
             raise AssumptionError('our assumptions were wrong, our worst fear')
         remainingBp._halfedge = newHalf
@@ -146,6 +151,10 @@ class Voronoi:
         for e in toRemove:
             self._edgelist.removeEdge(e)
 
+    def perimeter(self):
+        halfLength = lambda acc,x: acc+(Calc.dist(x._origin,x.dest())/2.0)
+        return 4 + reduce(halfLength, self._edgelist.edges(), 0)
+
     def plot(self, sites=None):
         # plot sites
         if sites is not None:
@@ -163,16 +172,13 @@ class Voronoi:
         plt.show()
 
 if __name__ == "__main__":
-    points = [[0.83, 0.54], [0.44, 0.27], [0.96, 0.58], [0.57, 0.49], [0.08, 0.81]] # complex
-    points = [[0.06, 0.94], [0.92, 0.82], [0.29, 0.91], [0.22, 0.27], [0.69, 0.72]] # "
-    # points = [[0.73, 0.82], [0.51, 0.68], [0.43, 0.74], [0.08, 0.0], [0.11, 0.31], [0.29, 0.25]] # assumption error
-    # points = [[0.17, 0.8], [0.03, 0.65], [0.34, 0.11], [0.93, 0.35], [0.93, 0.61], [0.27, 0.49]] # list assignment out of range
-    # points = [[0.05, 0.94], [0.26, 0.77], [0.25, 0.5], [0.71, 0.08], [0.91, 0.82], [0.19, 0.45], [0.85, 0.37]]
-    # points = [[0.42, 0.23], [0.37, 0.19], [0.46, 0.14], [0.17, 0.7], [0.81, 0.04], [0.16, 0.91], [0.33, 0.42], [0.42, 0.59], [0.48, 0.71], [0.46, 0.8], [0.52, 0.46], [0.83, 0.07], [0.29, 0.51], [0.29, 0.82], [0.02, 0.44], [0.1, 0.58], [0.73, 0.76], [0.01, 0.62]]
-    # points = Calc.getPoints(18)
+    points = [[0.4, 0.74], [0.09, 0.88], [0.51, 0.85], [0.81, 0.78], [0.74, 0.96], [0.19, 0.65]]
+    # points = Calc.getSitePoints(9)
 
     print(points)
     diagram = Voronoi(points)
+    print('perimeter: ' + str(Calc.roundBetter(diagram.perimeter())))
+    diagram.plot(points)
 
 """Possible bugs: 
 - if the sites fed to the circle algorithm are colinear

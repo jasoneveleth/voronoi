@@ -64,9 +64,13 @@ def quadraticFormula(a, b, c):
         ]
 
 def rand():
-    return round(random()*100)/100.0
+    return roundBetter(random())
 
-def getPoints(n):
+def roundBetter(x):
+    n = 100.0
+    return round(x*n)/n
+
+def getSitePoints(n):
     points = []
     yvalues = []
     for _ in range(n):
@@ -100,6 +104,9 @@ def converge(bp1, bp2):
         return False
 
 pointsOutward = lambda o,v: (o is not None) and (extend(o, v) is None)
+
+def dist(p1, p2):
+    return ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
 
 def notEqual(n, m):
     return round(n*(10**8))/(10**8) != round(m*(10**8))/(10**8)

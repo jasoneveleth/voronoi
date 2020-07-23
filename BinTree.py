@@ -37,7 +37,7 @@ class Node:
             return "breakpoint: {} halfedge: <{}>\n".format(self._breakpoint, self._halfedge)
             # return "breakpoint: {}\n".format(self._breakpoint)
         else:
-            return "site: {}\n".format(self._site)
+            return "site: {} event: <{}>\n".format(self._site, self._event)
     
     def __str__(self, prefix='', isLast=True):
         currLine = prefix + ("`- " if isLast else "|- ") + self.getInfo()
@@ -125,13 +125,45 @@ class BinTree:
         p = node._parent # trying to remove root, or parent's null
         if p._left == node:
             p._left = None
-        else:
+        elif p._right == node:
             p._right = None
 
-    def replace(self, old, new):
+    def getNodes(self):
+        l = []
+        l = self.recurseAcc(l, self._root)
+        return l
+
+    def recurseAcc(self, l, n):
+        l += [n]
+        if n._left is not None:
+            l = self.recurseAcc(l, n._left)
+        if n._right is not None:
+            l = self.recurseAcc(l, n._right)
+        return l
+
+    def diagnostic(self):
+        n = self._root
+        l = [n]
+        visited = []
+        while len(l) > 0:
+            n = l.pop()
+            if n in visited:
+                print('not good')
+                continue
+            if n._left is not None:
+                l += [n._left]
+            if n._right is not None:
+                l += [n._right]
+            print()
+            print('self: ' + str(n).split('\n')[0])
+            print('left: ' + str(n._left).split('\n')[0])
+            print('right: ' + str(n._right).split('\n')[0])
+            print('parent: ' + str(n._parent).split('\n')[0])
+            visited += [n]
+
+    def replaceWithChild(self, old, new):
         """ Replaces every attribute except parent
         """
-        self.remove(new)
         old._version = new._version
         old._site = new._site
         old._event = new._event
@@ -139,7 +171,13 @@ class BinTree:
         old._halfedge = new._halfedge
         old._left = new._left
         old._right = new._right
-        
+        if old._right is not None:
+            old._right._parent = old
+        if old._left is not None:
+            old._left._parent = old
+        self._size -= 1
+
+
     def lowestLeaf(self, node):
         if node._left != None:
             return self.lowestLeaf(node._left)

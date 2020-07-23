@@ -22,7 +22,7 @@ class HalfEdge:
         return self._twin._origin
     
     def __str__(self):
-        return 'origin: ' + str(self._origin) + ', dest: ' + str(self.dest())
+        return 'origin: ' + str(list(map(Calc.roundBetter, self._origin)) if self._origin is not None else None) + ', dest: ' + str((list(map(Calc.roundBetter, self.dest()))) if self.dest() is not None else None)
 
 
 class DCEL:
