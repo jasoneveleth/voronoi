@@ -64,6 +64,16 @@ class BinTree:
     def height(self):
         return self._height
 
+    def isLeftChild(self, node):
+        if self._root == node:
+            raise Exception('root is parentless')
+        return node == node._parent._left
+
+    def isRightChild(self, node):
+        if self._root == node:
+            raise Exception('root is parentless')
+        return node == node._parent._right
+
     def addRoot(self, version, data1, data2):
         if self._root == None:
             self._root = Node(None, version, data1, data2)
@@ -161,21 +171,30 @@ class BinTree:
             print('parent: ' + str(n._parent).split('\n')[0])
             visited += [n]
 
-    def replaceWithChild(self, old, new):
-        """ Replaces every attribute except parent
-        """
-        old._version = new._version
-        old._site = new._site
-        old._event = new._event
-        old._breakpoint = new._breakpoint
-        old._halfedge = new._halfedge
-        old._left = new._left
-        old._right = new._right
-        if old._right is not None:
-            old._right._parent = old
-        if old._left is not None:
-            old._left._parent = old
-        self._size -= 1
+    def replaceWithChild(self, parent, child):
+        """We know from context parent's other child is None."""
+        if parent == self._root:
+            self._root = child
+            return
+        grand = parent._parent
+        if self.isLeftChild(parent):
+            grand._left = child
+        else:
+            grand._right = child
+        child._parent = grand
+
+        # parent._version = child._version
+        # parent._site = child._site
+        # parent._event = child._event
+        # parent._breakpoint = child._breakpoint
+        # parent._halfedge = child._halfedge
+        # parent._left = child._left
+        # parent._right = child._right
+        # if parent._right is not None:
+        #     parent._right._parent = parent
+        # if parent._left is not None:
+        #     parent._left._parent = parent
+        # self._size -= 1
 
 
     def lowestLeaf(self, node):

@@ -67,7 +67,7 @@ def rand():
     return roundBetter(random())
 
 def roundBetter(x):
-    n = 100.0
+    n = 1000000
     return round(x*n)/n
 
 def getSitePoints(n):

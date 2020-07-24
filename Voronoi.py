@@ -18,15 +18,10 @@ class Voronoi:
 
         while not self._events.empty():
             event = self._events.removeMax()
-            print(self._tree)
             if event._kind == 'site event':
-                print('site event')
                 self.handleSiteEvent(event)
             else:
-                print('circle event')
                 self.handleCircleEvent(event._leaf)
-            print(self._tree)
-            print('-----------------------------------------------------------')
         self.finishDiagram(points)
         # TODO traverse the half edges to add the cell records and the pointers to and from them
 
@@ -61,15 +56,12 @@ class Voronoi:
             self.checkNewCircle(newArc, oldArcRight, toRight)
 
     def handleCircleEvent(self, leaf):
-        print(leaf._parent)
         nextLeaf = self._tree.nextLeaf(leaf)
         prevLeaf = self._tree.prevLeaf(leaf)
         nextBreakpoint = self._tree.successor(leaf)
         prevBreakpoint = self._tree.predecessor(leaf)
-        print(leaf in self._tree.getNodes())
         self._tree.remove(leaf)
         coord = Calc.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
-        print(prevLeaf._site, leaf._site, nextLeaf._site)
         bottom = Calc.circleBottom(prevLeaf._site, leaf._site, nextLeaf._site)
 
         prevBreakpoint._halfedge._twin._origin = coord
@@ -78,10 +70,6 @@ class Voronoi:
         vert = self._edgelist.addVertex(coord)
         newHalf = self._edgelist.addEdge(coord)
         vert._incidentEdge = newHalf
-
-        # self._tree.diagnostic()
-        # print(leaf)
-        # print(leaf._parent)
 
         # readjusting tree
         if nextBreakpoint == leaf._parent:
@@ -172,8 +160,8 @@ class Voronoi:
         plt.show()
 
 if __name__ == "__main__":
-    points = [[0.4, 0.74], [0.09, 0.88], [0.51, 0.85], [0.81, 0.78], [0.74, 0.96], [0.19, 0.65]]
-    # points = Calc.getSitePoints(9)
+    points = Calc.getSitePoints(172)
+    # points = [[0.11, 0.94], [0.12, 0.62], [0.12, 0.42], [0.71, 0.38], [0.29, 0.48], [0.51, 0.73], [0.54, 0.03], [0.66, 0.66], [0.9, 0.61], [0.19, 0.85], [0.78, 0.97], [0.9, 0.15], [0.75, 0.87], [0.96, 0.9], [0.79, 0.13], [0.49, 0.29], [0.18, 0.5], [0.13, 0.37], [0.62, 0.21], [0.17, 0.89], [0.98, 0.43], [0.8, 0.7], [0.93, 0.59], [0.21, 0.64], [0.77, 0.92], [0.38, 0.01], [0.21, 0.36], [0.34, 0.23], [0.71, 0.78], [0.95, 0.08], [0.87, 0.91], [0.85, 0.34], [0.61, 0.69]]
 
     print(points)
     diagram = Voronoi(points)
