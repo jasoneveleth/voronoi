@@ -24,10 +24,7 @@ class Node:
 
         self._left = None
         self._right = None
-        if parent == None:
-            self._depth = 0
-        else:
-            self._depth = parent._depth + 1
+        self._depth = 0 if parent is None else parent._depth + 1
 
     def addRight(self, version, data1, data2):
         self._right = Node(self, version, data1, data2)
@@ -178,6 +175,7 @@ class BinTree:
 
     def replaceWithChild(self, parent, child):
         """We know from context parent's other child is None."""
+        self._size -= 1
         if parent == self._root:
             self._root = child
             return
@@ -218,21 +216,21 @@ class BinTree:
         else:
             return None
 
-    def addRight(self, node, version, data1, data2=None):
-        node.addRight(version, data1, data2)
+    def addRight(self, parent, version, data1, data2=None):
+        parent.addRight(version, data1, data2)
         self._size += 1
-        depth = node._right._depth
+        depth = parent._right._depth
         if depth + 1 > self._height:
             self._height = depth + 1
-        return node._right
+        return parent._right
 
-    def addLeft(self, node, version, data1, data2=None):
-        node.addLeft(version, data1, data2)
+    def addLeft(self, parent, version, data1, data2=None):
+        parent.addLeft(version, data1, data2)
         self._size += 1
-        depth = node._left._depth
+        depth = parent._left._depth
         if depth + 1 > self._height:
             self._height = depth + 1
-        return node._left
+        return parent._left
 
     def __str__(self):
         return 'BinTree: \n' + str(self._root)

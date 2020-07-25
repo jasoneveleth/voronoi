@@ -34,22 +34,19 @@ class Voronoi:
             self._tree.addRoot('arc', event._site, None)
             return
         oldNode = self._tree.findArc(event._site)
-        point = Calc.getProjection(event._site, oldNode._site)
-
         self.removeFalseAlarm(oldNode)
+        oldSite = oldNode._site
+        newSite = event._site
+        point = Calc.getProjection(newSite, oldSite)
 
         # add subtree
-        oldNode._version = 'breakpoint'
-        oldNode._breakpoint = [oldNode._site, event._site]
-        oldNode._halfedge = self._edgelist.addEdge(point)
-        self._edgelist.initSiteVector(oldNode._halfedge, oldNode._site, event._site)
-        newBp = self._tree.addRight(oldNode, 'breakpoint', 
-                                      [event._site, oldNode._site],
-                                      oldNode._halfedge._twin)
-        oldArcLeft = self._tree.addLeft(oldNode, 'arc', oldNode._site)
-        newArc = self._tree.addLeft(newBp, 'arc', event._site)
-        oldArcRight = self._tree.addRight(newBp, 'arc', oldNode._site)
-        oldNode._site = None
+        leftBp = self._tree.addRight(oldNode, 'breakpoint', [oldSite, newSite], self._edgelist.addEdge(point))
+        rightBp = self._tree.addRight(leftBp, 'breakpoint', [newSite, oldSite], leftBp._halfedge._twin)
+        oldArcLeft = self._tree.addLeft(leftBp, 'arc', oldSite)
+        newArc = self._tree.addLeft(rightBp, 'arc', newSite)
+        oldArcRight = self._tree.addRight(rightBp, 'arc', oldSite)
+        self._edgelist.initSiteVector(leftBp._halfedge, oldSite, newSite)
+        self._tree.replaceWithChild(oldNode, leftBp)
 
         toLeft = self._tree.prevLeaf(oldArcLeft)
         if toLeft is not None:
@@ -70,7 +67,6 @@ class Voronoi:
 
         prevBreakpoint._halfedge._twin._origin = coord
         nextBreakpoint._halfedge._twin._origin = coord
-        self._edgelist.assignAdjacency(coord, prevBreakpoint._halfedge, nextBreakpoint._halfedge)
         vert = self._edgelist.addVertex(coord)
         newHalf = self._edgelist.addEdge(coord)
         vert._incidentEdge = newHalf
@@ -163,7 +159,7 @@ class Voronoi:
         plt.show()
 
 if __name__ == "__main__":
-    points = Calc.getSitePoints(10)
+    points = Calc.getSitePoints(310)
 
     # print(points)
     diagram = Voronoi(points)

@@ -28,8 +28,11 @@ class Event:
 
 class Heap:
     def __init__(self):
+        self.clear()
+     
+    def clear(self):
         self._array = []
-    
+
     def removeMax(self):
         last = self._array[-1]
         maximum = self._array[0]
@@ -64,21 +67,33 @@ class Heap:
         e2._index = temp
 
     def downheap(self, event):
-        while (self.size() > 2 * event._index + 1) and (event.key() < self.maxChild(event).key()):
+        while (self.hasLeft(event._index)) and (event.key() < self.maxChild(event).key()):
             self.swap(event, self.maxChild(event))
 
     def upheap(self, event):
         while event._index > 0 and event.key() > self.parent(event).key():
             self.swap(event, self.parent(event))
 
+    def hasLeft(self, key):
+        return self.size() > 2*key + 1
+
+    def hasRight(self, key):
+        return self.size() > 2*key + 2
+
+    def left(self, key):
+        return self._array[2*key + 1]
+
+    def right(self, key):
+        return self._array[2*key + 2]
+
     def parent(self, event):
         return self._array[int(ceil(event._index/2.0) - 1)]
     
     def maxChild(self, event):
-        if (self.size() <= 2 * event._index + 2
-            or self._array[2 * event._index + 1].key() > self._array[2 * event._index + 2].key()):
-            return self._array[2 * event._index + 1]
-        return self._array[2 * event._index + 2]
+        if (not self.hasRight(event._index)
+            or self.left(event._index).key() > self.right(event._index).key()):
+            return self.left(event._index)
+        return self.right(event._index)
 
     def size(self):
         return len(self._array)
