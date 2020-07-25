@@ -145,12 +145,13 @@ class Voronoi:
 
     def plot(self, sites=None):
         # plot sites
-        if sites is not None:
+        if (sites is not None) and (len(sites) < 300):
+        # if True:
             sites = np.array(sites)
             plt.plot(sites[:,0], sites[:,1], 'ro')
 
-        vertices = np.array([e._origin for e in self._edgelist.edges()])
-        plt.plot(vertices[:,0], vertices[:,1], 'bo')
+            vertices = np.array([e._origin for e in self._edgelist.edges()])
+            plt.plot(vertices[:,0], vertices[:,1], 'bo')
 
         edges = [[e._origin, e.dest()] for e in self._edgelist.edges()]
         edges = LineColl(edges)
@@ -160,10 +161,10 @@ class Voronoi:
         plt.show()
 
 if __name__ == "__main__":
-    points = Calc.getSitePoints(1072)
+    points = Calc.getSitePoints(1099)
     # points = [[0.11, 0.94], [0.12, 0.62], [0.12, 0.42], [0.71, 0.38], [0.29, 0.48], [0.51, 0.73], [0.54, 0.03], [0.66, 0.66], [0.9, 0.61], [0.19, 0.85], [0.78, 0.97], [0.9, 0.15], [0.75, 0.87], [0.96, 0.9], [0.79, 0.13], [0.49, 0.29], [0.18, 0.5], [0.13, 0.37], [0.62, 0.21], [0.17, 0.89], [0.98, 0.43], [0.8, 0.7], [0.93, 0.59], [0.21, 0.64], [0.77, 0.92], [0.38, 0.01], [0.21, 0.36], [0.34, 0.23], [0.71, 0.78], [0.95, 0.08], [0.87, 0.91], [0.85, 0.34], [0.61, 0.69]]
 
-    print(points)
+    # print(points)
     diagram = Voronoi(points)
     print('perimeter: ' + str(Calc.roundBetter(diagram.perimeter())))
     diagram.plot(points)
