@@ -1,14 +1,19 @@
 import Calc
 
+class BinTreeRootError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 class Node:
     def __init__(self, parent, version, data1, data2):
         self._parent = parent
         self._version = version
         if version == 'arc':
             self._site = data1 # ex. [0,0]
-            self._event = data2 # ex. Event()
+            self._event = data2 # Event
             self._breakpoint = None # ex. [[0,0],[0,0]]
-            self._halfedge = None # ex. diagram.addEdge()
+            self._halfedge = None # HalfEdge
         elif version == 'breakpoint':
             self._breakpoint = data1
             self._halfedge = data2
@@ -35,7 +40,6 @@ class Node:
     def getInfo(self):
         if self._version == 'breakpoint':
             return "breakpoint: {} halfedge: <{}>\n".format(self._breakpoint, self._halfedge)
-            # return "breakpoint: {}\n".format(self._breakpoint)
         else:
             return "site: {} event: <{}>\n".format(self._site, self._event)
     
@@ -132,11 +136,12 @@ class BinTree:
     
     def remove(self, node):
         self._size -= 1
-        p = node._parent # trying to remove root, or parent's null
-        if p._left == node:
-            p._left = None
-        elif p._right == node:
-            p._right = None
+        p = node._parent
+        if p is not None:
+            if p._left == node:
+                p._left = None
+            elif p._right == node:
+                p._right = None
 
     def getNodes(self):
         l = []
@@ -183,20 +188,6 @@ class BinTree:
             grand._right = child
         child._parent = grand
 
-        # parent._version = child._version
-        # parent._site = child._site
-        # parent._event = child._event
-        # parent._breakpoint = child._breakpoint
-        # parent._halfedge = child._halfedge
-        # parent._left = child._left
-        # parent._right = child._right
-        # if parent._right is not None:
-        #     parent._right._parent = parent
-        # if parent._left is not None:
-        #     parent._left._parent = parent
-        # self._size -= 1
-
-
     def lowestLeaf(self, node):
         if node._left != None:
             return self.lowestLeaf(node._left)
@@ -204,7 +195,7 @@ class BinTree:
             return self.lowestLeaf(node._right)
         else:
             return node
-    
+
     def highestLeaf(self, node):
         if node._right != None:
             return self.highestLeaf(node._right)

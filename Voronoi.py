@@ -6,7 +6,11 @@ from functools import reduce
 from BinTree import BinTree
 from DCEL import DCEL
 from Heap import Heap
-from Errors import *
+
+class AssumptionError(Exception):
+    def __init__(self, message):
+        self.message = message
+
 
 class Voronoi:
     def __init__(self, points):
@@ -85,7 +89,6 @@ class Voronoi:
         remainingBp._halfedge = newHalf
         self._edgelist.initCircleVector(newHalf, remainingBp._breakpoint[0], remainingBp._breakpoint[1], bottom)
 
-        # remove false alarm circle events
         self.removeFalseAlarm(nextLeaf)
         self.removeFalseAlarm(prevLeaf)
 
@@ -130,9 +133,9 @@ class Voronoi:
                     toRemove.add(t)
                 elif exists(e._origin) and exists(t._origin):
                     for outside in filter(lambda x: Calc.isOutside(x._origin), [e,t]):
-                        outside._origin = Calc.shorten(outside._origin, outside._vector) # change to shorten on non-twin??
+                        outside._origin = Calc.shorten(outside._origin, outside._vector)
                 else: # only one exists
-                    existing = e if not (e._origin is None) else t # gives _an_ existing edge (or t if neither exist)
+                    existing = e if not (e._origin is None) else t
                     existing._twin._origin = Calc.extend(existing._origin, existing._vector)
                     if Calc.isOutside(existing._origin):
                         existing._origin = Calc.shorten(existing._origin, existing._vector)
@@ -146,7 +149,6 @@ class Voronoi:
     def plot(self, sites=None):
         # plot sites
         if (sites is not None) and (len(sites) < 300):
-        # if True:
             sites = np.array(sites)
             plt.plot(sites[:,0], sites[:,1], 'ro')
 
@@ -161,8 +163,7 @@ class Voronoi:
         plt.show()
 
 if __name__ == "__main__":
-    points = Calc.getSitePoints(1099)
-    # points = [[0.11, 0.94], [0.12, 0.62], [0.12, 0.42], [0.71, 0.38], [0.29, 0.48], [0.51, 0.73], [0.54, 0.03], [0.66, 0.66], [0.9, 0.61], [0.19, 0.85], [0.78, 0.97], [0.9, 0.15], [0.75, 0.87], [0.96, 0.9], [0.79, 0.13], [0.49, 0.29], [0.18, 0.5], [0.13, 0.37], [0.62, 0.21], [0.17, 0.89], [0.98, 0.43], [0.8, 0.7], [0.93, 0.59], [0.21, 0.64], [0.77, 0.92], [0.38, 0.01], [0.21, 0.36], [0.34, 0.23], [0.71, 0.78], [0.95, 0.08], [0.87, 0.91], [0.85, 0.34], [0.61, 0.69]]
+    points = Calc.getSitePoints(10)
 
     # print(points)
     diagram = Voronoi(points)

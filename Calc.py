@@ -1,6 +1,15 @@
 from random import random
-from Errors import *
 from functools import reduce
+
+class IntersectError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class CurvatureError(Exception):
+    def __init__(self, message):
+        self.message = message
+
 
 def circleCenter(a, b, c):
     d = 2*(a[0]*(b[1]-c[1]) + b[0]*(c[1]-a[1]) + c[0]*(a[1]-b[1]))
