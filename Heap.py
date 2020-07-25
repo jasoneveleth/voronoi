@@ -5,22 +5,22 @@ class Event:
     def __init__(self, index, kind, data, p1=None, p2=None, p3=None):
         self._kind = kind
         self._index = index
-        if self._kind == 'site event':
+        if self._kind == 'site':
             self._site = data
-        elif self._kind == 'circle event':
+        elif self._kind == 'circle':
             self._leaf = data
             self._point = Calc.circleBottom(p1, p2, p3)
         else:
             raise TypeError("yoinks, non-event")
 
     def key(self):
-        if self._kind == 'site event':
+        if self._kind == 'site':
             return self._site[1]
-        if self._kind == 'circle event':
+        if self._kind == 'circle':
             return self._point[1]
 
     def __str__(self):
-        if self._kind == 'site event':
+        if self._kind == 'site':
             return "kind: {} site: {}".format(self._kind, self._site)
         else:
             # return "kind: '{}' leaf: {} point: {}".format(self._kind, self._leaf, self._point)

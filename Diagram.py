@@ -12,21 +12,21 @@ class AssumptionError(Exception):
         self.message = message
 
 
-class Voronoi:
+class Diagram:
     def __init__(self, points):
         self._events = Heap()
         self._tree = BinTree()
         self._edgelist = DCEL()
         for p in points:
-            self._events.insert('site event', p)
+            self._events.insert('site', p)
 
         while not self._events.empty():
             event = self._events.removeMax()
-            if event._kind == 'site event':
+            if event._kind == 'site':
                 self.handleSiteEvent(event)
             else:
                 self.handleCircleEvent(event._leaf)
-        self.finishDiagram(points)
+        self.pruneEdges(points)
         # TODO traverse the half edges to add the cell records and the pointers to and from them
 
     def handleSiteEvent(self, event):
@@ -45,25 +45,21 @@ class Voronoi:
         oldArcLeft = self._tree.addLeft(leftBp, 'arc', oldSite)
         newArc = self._tree.addLeft(rightBp, 'arc', newSite)
         oldArcRight = self._tree.addRight(rightBp, 'arc', oldSite)
-        self._edgelist.initSiteVector(leftBp._halfedge, oldSite, newSite)
         self._tree.replaceWithChild(oldNode, leftBp)
 
-        toLeft = self._tree.prevLeaf(oldArcLeft)
-        if toLeft is not None:
-            self.checkNewCircle(toLeft, oldArcLeft, newArc)
+        self._edgelist.initSiteVector(leftBp._halfedge, oldSite, newSite)
 
-        toRight = self._tree.nextLeaf(oldArcRight)
-        if toRight is not None:
-            self.checkNewCircle(newArc, oldArcRight, toRight)
+        self.checkNewCircle(self._tree.prevLeaf(oldArcLeft), oldArcLeft, newArc)
+        self.checkNewCircle(newArc, oldArcRight, self._tree.nextLeaf(oldArcRight))
 
     def handleCircleEvent(self, leaf):
         nextLeaf = self._tree.nextLeaf(leaf)
         prevLeaf = self._tree.prevLeaf(leaf)
         nextBreakpoint = self._tree.successor(leaf)
         prevBreakpoint = self._tree.predecessor(leaf)
-        self._tree.remove(leaf)
         coord = Calc.circleCenter(prevLeaf._site, leaf._site, nextLeaf._site)
         bottom = Calc.circleBottom(prevLeaf._site, leaf._site, nextLeaf._site)
+        self._tree.remove(leaf)
 
         prevBreakpoint._halfedge._twin._origin = coord
         nextBreakpoint._halfedge._twin._origin = coord
@@ -88,14 +84,8 @@ class Voronoi:
         self.removeFalseAlarm(nextLeaf)
         self.removeFalseAlarm(prevLeaf)
 
-        # check for circle self._events
-        toLeft = self._tree.prevLeaf(prevLeaf)
-        if toLeft is not None:
-            self.checkNewCircle(toLeft, prevLeaf, nextLeaf)
-
-        toRight = self._tree.nextLeaf(nextLeaf)
-        if toRight is not None:
-            self.checkNewCircle(prevLeaf, nextLeaf, toRight)
+        self.checkNewCircle(self._tree.prevLeaf(prevLeaf), prevLeaf, nextLeaf)
+        self.checkNewCircle(prevLeaf, nextLeaf, self._tree.nextLeaf(nextLeaf))
 
     def removeFalseAlarm(self, leaf):
         if leaf._event != None:
@@ -103,14 +93,15 @@ class Voronoi:
             leaf._event = None
     
     def checkNewCircle(self, left, center, right):
+        if (left is None) or (right is None):
+            return
         next = self._tree.successor(center)
         prev = self._tree.predecessor(center)
         if Calc.converge(next, prev):
-            e = self._events.insert('circle event', center, left._site, 
-                                    center._site, right._site)
+            e = self._events.insert('circle', center, left._site, center._site, right._site)
             center._event = e
 
-    def finishDiagram(self, points):
+    def pruneEdges(self, points):
         toRemove = set()
         for e in self._edgelist.edges():
             t = e._twin
@@ -162,7 +153,7 @@ if __name__ == "__main__":
     points = Calc.getSitePoints(310)
 
     # print(points)
-    diagram = Voronoi(points)
+    diagram = Diagram(points)
     print('perimeter: ' + str(Calc.roundBetter(diagram.perimeter())))
     diagram.plot(points)
 
