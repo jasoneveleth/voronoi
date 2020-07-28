@@ -91,7 +91,6 @@ def getProjection(point, focus):
 
 def converge(p1, v1, p2, v2):
     """intersection of parameterized lines: p1 + t(v1) and p2 + s(v2)"""
-    print(p1, v1, p2, v2)
     s = ((v1[0]*p1[1] - v1[0]*p2[1] + v1[1]*p2[0] - v1[1]*p1[0])
          / (v2[1]*v1[0] - v2[0]*v1[1]))
     t = (p2[0] - p1[0] + s*v2[0])/v1[0]

@@ -15,15 +15,11 @@ class Diagram:
         for p in points:
             self._events.insert('site', p)
         while not self._events.empty():
-            print('--------------------------------------------')
             event = self._events.removeMax()
             if event._kind == 'site':
-                print('site')
                 self.handleSiteEvent(event)
             else:
-                print('circle')
                 self.handleCircleEvent(event._leaf)
-            print(self._tree)
         self.pruneEdges(points)
 
     def handleSiteEvent(self, event):
@@ -74,29 +70,28 @@ class Diagram:
         # readjusting tree
         nextIsParent = (nextBp == leaf._parent)
         toRemove = nextBp if nextIsParent else prevBp
+        remainingBp = prevBp if nextIsParent else nextBp
         otherChild = nextBp._right if nextIsParent else prevBp._left
         self._tree.replaceWithChild(toRemove, otherChild)
-        remainingBp = prevBp if nextIsParent else nextBp
         remainingBp.data['bp'] = newlyAdjacent
 
         # add edge
         vert = self._edgelist.addVertex(coord)
         newHalf = self._edgelist.addEdge(coord)
         vert._incidentEdge = newHalf
-        remainingBp.data['halfedge'] = newHalf
+        remainingBp.data['edge'] = newHalf
         bottom = Calc.circleBottom(leftSite, centerSite, rightSite)
         self._edgelist.initCircleVector(newHalf, newlyAdjacent, bottom)
 
         self.removeFalseAlarm(nextLeaf)
         self.removeFalseAlarm(prevLeaf)
 
-        print(self._tree)
         self.checkNewCircle(self._tree.prevLeaf(prevLeaf), prevLeaf, nextLeaf)
         self.checkNewCircle(prevLeaf, nextLeaf, self._tree.nextLeaf(nextLeaf))
 
     def removeFalseAlarm(self, leaf):
         if leaf.data['event'] != None:
-            self._events.remove(leaf._event)
+            self._events.remove(leaf.data['event'])
             leaf.data['event'] = None
 
     def checkNewCircle(self, left, middle, right):
@@ -158,8 +153,7 @@ class Diagram:
         plt.show()
 
 if __name__ == "__main__":
-    points = Calc.getSitePoints(3)
-    points = [(0.21, 0.16),(0.43, 0.99),(0.71,0.79)]
+    points = Calc.getSitePoints(1014)
     diagram = Diagram(points)
     print('perimeter: ' + str(Calc.roundBetter(diagram.perimeter())))
     diagram.plot(points)
