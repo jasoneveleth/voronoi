@@ -1,45 +1,39 @@
 import Calc
 
+class BinTreeOrganizationError(Exception):
+    def __init__(self, message):
+        self.message = message
+
 class BinTreeRootError(Exception):
     def __init__(self, message):
         self.message = message
 
 
 class Node:
-    def __init__(self, parent, version, data1, data2):
+    def __init__(self, parent, data):
         self._parent = parent
-        self._version = version
-        if version == 'arc':
-            self._site = data1 # ex. [0,0]
-            self._event = data2 # Event
-            self._breakpoint = None # ex. [[0,0],[0,0]]
-            self._halfedge = None # HalfEdge
-        elif version == 'breakpoint':
-            self._breakpoint = data1
-            self._halfedge = data2
-            self._site = None
-            self._event = None
-        else:
-            raise TypeError("yikes wrong version")
-
+        self.data = data
         self._left = None
         self._right = None
-        self._depth = 0 if parent is None else parent._depth + 1
+        self._depth = 0 if (parent is None) else parent._depth + 1
+        for attr in ['site', 'event', 'bp', 'edge']:
+            if not (attr in self.data):
+                self.data[attr] = None
 
-    def addRight(self, version, data1, data2):
-        self._right = Node(self, version, data1, data2)
+    def addRight(self, data):
+        self._right = Node(self, data)
         return self._right
 
-    def addLeft(self, version, data1, data2):
-        self._left = Node(self, version, data1, data2)
+    def addLeft(self, data):
+        self._left = Node(self, data)
         return self._left
 
     def getInfo(self):
-        if self._version == 'breakpoint':
-            return "breakpoint: {} halfedge: <{}>\n".format(self._breakpoint, self._halfedge)
+        if self.data['site'] is None:
+            return "breakpoint: {} halfedge: <{}>\n".format(self.data['bp'], self.data['edge'])
         else:
-            return "site: {} event: <{}>\n".format(self._site, self._event)
-    
+            return "site: {} event: <{}>\n".format(self.data['site'], self.data['event'])
+
     def __str__(self, prefix='', isLast=True):
         currLine = prefix + ("`- " if isLast else "|- ") + self.getInfo()
         prefix += "   " if isLast else "|  "
@@ -67,17 +61,17 @@ class BinTree:
 
     def isLeftChild(self, node):
         if self._root == node:
-            raise Exception('root is parentless')
+            raise BinTreeRootError('root is parentless')
         return node == node._parent._left
 
     def isRightChild(self, node):
         if self._root == node:
-            raise Exception('root is parentless')
+            raise BinTreeRootError('root is parentless')
         return node == node._parent._right
 
-    def addRoot(self, version, data1, data2):
+    def addRoot(self, value):
         if self._root == None:
-            self._root = Node(None, version, data1, data2)
+            self._root = Node(None, value)
             self._size = 1
             self._height = 1
             return self._root
@@ -87,8 +81,8 @@ class BinTree:
     
     def findArc(self, site):
         node = self._root
-        while node._version != 'arc':
-            intersection = Calc.intersect(node._breakpoint, site[1])
+        while node.data['site'] is None:
+            intersection = Calc.intersect(node.data['bp'], site[1])
             if site[0] < intersection[0]:
                 node = node._left
             else:
@@ -130,7 +124,7 @@ class BinTree:
             return node
         else:
             return self.getMin(node._right)
-    
+
     def remove(self, node):
         self._size -= 1
         p = node._parent
@@ -140,38 +134,26 @@ class BinTree:
             elif p._right == node:
                 p._right = None
 
-    def getNodes(self):
-        l = []
-        l = self.recurseAcc(l, self._root)
-        return l
-
-    def recurseAcc(self, l, n):
-        l += [n]
-        if n._left is not None:
-            l = self.recurseAcc(l, n._left)
-        if n._right is not None:
-            l = self.recurseAcc(l, n._right)
-        return l
-
     def diagnostic(self):
         n = self._root
         l = [n]
         visited = []
+        string = ''
         while len(l) > 0:
             n = l.pop()
             if n in visited:
-                print('not good')
-                continue
+                raise BinTreeOrganizationError('not good')
             if n._left is not None:
                 l += [n._left]
             if n._right is not None:
                 l += [n._right]
-            print()
-            print('self: ' + str(n).split('\n')[0])
-            print('left: ' + str(n._left).split('\n')[0])
-            print('right: ' + str(n._right).split('\n')[0])
-            print('parent: ' + str(n._parent).split('\n')[0])
+            string += '\n'
+            string += 'self: ' + str(n).split('\n')[0][3:] + '\n'
+            string += 'left: ' + str(n._left).split('\n')[0][3:] + '\n'
+            string += 'right: ' + str(n._right).split('\n')[0][3:] + '\n'
+            string += 'parent: ' + str(n._parent).split('\n')[0][3:] + '\n'
             visited += [n]
+        return string
 
     def replaceWithChild(self, parent, child):
         """We know from context parent's other child is None."""
@@ -216,16 +198,16 @@ class BinTree:
         else:
             return None
 
-    def addRight(self, parent, version, data1, data2=None):
-        parent.addRight(version, data1, data2)
+    def addRight(self, parent, data):
+        parent.addRight(data)
         self._size += 1
         depth = parent._right._depth
         if depth + 1 > self._height:
             self._height = depth + 1
         return parent._right
 
-    def addLeft(self, parent, version, data1, data2=None):
-        parent.addLeft(version, data1, data2)
+    def addLeft(self, parent, data):
+        parent.addLeft(data)
         self._size += 1
         depth = parent._left._depth
         if depth + 1 > self._height:

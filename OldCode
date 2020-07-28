@@ -195,3 +195,21 @@ BINTREE - check if all nodes are referencing children properly
             if node._right._parent != node:
                 print('oh fuck')
             self.checkYourself(node._right)
+
+
+
+
+BINTREE - prints all the nodes out
+    def getNodes(self):
+        l = []
+        l = self.recurseAcc(l, self._root)
+        return l
+
+    def recurseAcc(self, l, n):
+        l += [n]
+        if n._left is not None:
+            l = self.recurseAcc(l, n._left)
+        if n._right is not None:
+            l = self.recurseAcc(l, n._right)
+        return l
+

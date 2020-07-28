@@ -2,16 +2,16 @@ from math import ceil
 import Calc
 
 class Event:
-    def __init__(self, index, kind, data, p1=None, p2=None, p3=None):
+    def __init__(self, index, kind, data, p=None):
         self._kind = kind
         self._index = index
         if self._kind == 'site':
             self._site = data
         elif self._kind == 'circle':
             self._leaf = data
-            self._point = Calc.circleBottom(p1, p2, p3)
+            self._point = p
         else:
-            raise TypeError("yoinks, non-event")
+            raise TypeError("non-event")
 
     def key(self):
         if self._kind == 'site':
@@ -52,8 +52,8 @@ class Heap:
             self.upheap(last)
             self.downheap(last)
 
-    def insert(self, kind, data, p1=None, p2=None, p3=None):
-        event = Event(self.size(), kind, data, p1, p2, p3)
+    def insert(self, kind, data, p=None):
+        event = Event(self.size(), kind, data, p)
         self._array.append(event)
         self.upheap(event)
         self.downheap(event)

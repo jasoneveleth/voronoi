@@ -22,7 +22,7 @@ class HalfEdge:
         return self._twin._origin
     
     def __str__(self):
-        return 'origin: ' + str(list(map(Calc.roundBetter, self._origin)) if self._origin is not None else None) + ', dest: ' + str((list(map(Calc.roundBetter, self.dest()))) if self.dest() is not None else None)
+        return 'origin: ' + str(list(map(Calc.roundBetter, self._origin)) if self._origin is not None else None) + ', dest: ' + str((list(map(Calc.roundBetter, self.dest()))) if self.dest() is not None else None) + ', point: ' + str(self._point) + ', vector: ' + str(self._vector)
 
 
 class DCEL:
@@ -87,12 +87,13 @@ class DCEL:
     def removeEdge(self, edge):
         self._edges.pop(self._edges.index(edge))
 
-    def initCircleVector(self, edge, site1, site2, bottom):
+    def initCircleVector(self, edge, bp, bottom):
+        site1, site2 = bp
         point = edge._point
-        futurePt = Calc.intersect([site1, site2], bottom[1]-0.1)
+        futurePt = Calc.intersect((site1, site2), bottom[1]-0.1)
         edge._vector = Calc.subtract(futurePt, point)
         edge._origin = point
-        edge._twin._vector = [-edge._vector[0], -edge._vector[1]]
+        edge._twin._vector = (-edge._vector[0], -edge._vector[1])
     
     def initSiteVector(self, edge, site1, site2):
         if site1[0] > site2[0]:
@@ -101,15 +102,15 @@ class DCEL:
             site2 = temp
 
         if site1[0] - site2[0] == 0:
-            leftVector = [-1,0]
-            rightVector = [1, 0]
+            leftVector = (-1,0)
+            rightVector = (1, 0)
         elif site1[1] - site2[1] == 0:
-            leftVector = [0, 1]
-            rightVector = [0, -1]
+            leftVector = (0, 1)
+            rightVector = (0, -1)
         else:
             slope = (site2[1] - site1[1])/(site2[0] - site1[0])
-            leftVector = [-1, 1.0/slope]
-            rightVector = [1, -1.0/slope]
+            leftVector = (-1, 1.0/slope)
+            rightVector = (1, -1.0/slope)
 
         edge._vector = leftVector
         edge._twin._vector = rightVector
