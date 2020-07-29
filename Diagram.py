@@ -9,6 +9,12 @@ from Heap import Heap
 
 class Diagram:
     def __init__(self, points):
+        self._sites = points
+        self._jpgCounter = 0
+        self.fortunes()
+
+    def fortunes(self):
+        points = self._sites
         self._events = Heap()
         self._tree = BinTree()
         self._edgelist = DCEL()
@@ -132,16 +138,24 @@ class Diagram:
         for e in toRemove:
             self._edgelist.removeEdge(e)
 
-    def perimeter(self):
+    def getPerimeter(self):
         halfLength = lambda acc,x: acc+(Calc.dist(x._origin,x.dest())/2.0)
         return 4 + reduce(halfLength, self._edgelist.edges(), 0)
 
-    def plot(self, sites=None):
-        # plot sites
-        if (sites is not None) and (len(sites) < 300):
+    def getPlotables(self):
+        vertices = np.array([e._origin for e in self._edgelist.edges()])
+        edges = [[e._origin, e.dest()] for e in self._edgelist.edges()]
+        edges = LineColl(edges)
+        sites = np.array(sites)
+        return (edges, sites, vertices)
+
+    def plot(self):
+        sites = self._sites
+        if Calc.Constants.PLOT_SITES:
             sites = np.array(sites)
             plt.plot(sites[:,0], sites[:,1], 'ro')
 
+        if Calc.Constants.PLOT_VERTS:
             vertices = np.array([e._origin for e in self._edgelist.edges()])
             plt.plot(vertices[:,0], vertices[:,1], 'bo')
 
@@ -150,11 +164,13 @@ class Diagram:
         plt.gca().add_collection(edges)
 
         plt.axis([0, 1, 0, 1])
-        plt.show()
+        plt.savefig(str(self._jpgCounter) + '.png')
+        self._jpgCounter += 1
+        plt.close()
 
 if __name__ == "__main__":
-    points = Calc.getSitePoints(1014)
+    points = Calc.getSitePoints(1024)
     diagram = Diagram(points)
-    print('perimeter: ' + str(Calc.roundBetter(diagram.perimeter())))
+    print('perimeter: ' + str(Calc.roundBetter(diagram.getPerimeter())))
     diagram.plot(points)
 

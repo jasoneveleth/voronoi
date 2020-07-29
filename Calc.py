@@ -1,3 +1,4 @@
+import math
 from random import random
 from functools import reduce
 
@@ -9,6 +10,12 @@ class IntersectError(Exception):
 class CurvatureError(Exception):
     def __init__(self, message):
         self.message = message
+
+
+class Constants:
+    PI = 3.14159265358979323
+    PLOT_VERTS = False
+    PLOT_SITES = True
 
 
 def circleCenter(a, b, c):
@@ -25,6 +32,13 @@ def circleBottom(a, b, c):
     x,y = circleCenter(a, b, c)
     r = ((a[0]-x)**2 + (a[1]-y)**2)**0.5
     return (x,y-r)
+
+def wiggle(point, r):
+    radius = r*random()
+    theta = random()*2*Constants.PI
+    point[0] += radius*math.cos(theta)
+    point[1] += radius*math.sin(theta)
+    return point
 
 def intersect(breakpoint, l):
     """takes in list of two ordered focii, and a directrix
