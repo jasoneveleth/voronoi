@@ -1,7 +1,4 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import Calc
-from matplotlib.collections import LineCollection as LineColl
 from functools import reduce
 from BinTree import BinTree
 from DCEL import DCEL
@@ -10,7 +7,6 @@ from Heap import Heap
 class Diagram:
     def __init__(self, points):
         self._sites = points
-        self._jpgCounter = 0
         self.fortunes()
 
     def fortunes(self):
@@ -143,34 +139,8 @@ class Diagram:
         return 4 + reduce(halfLength, self._edgelist.edges(), 0)
 
     def getPlotables(self):
-        vertices = np.array([e._origin for e in self._edgelist.edges()])
+        vertices = [e._origin for e in self._edgelist.edges()]
         edges = [[e._origin, e.dest()] for e in self._edgelist.edges()]
-        edges = LineColl(edges)
-        sites = np.array(sites)
-        return (edges, sites, vertices)
-
-    def plot(self):
         sites = self._sites
-        if Calc.Constants.PLOT_SITES:
-            sites = np.array(sites)
-            plt.plot(sites[:,0], sites[:,1], 'ro')
-
-        if Calc.Constants.PLOT_VERTS:
-            vertices = np.array([e._origin for e in self._edgelist.edges()])
-            plt.plot(vertices[:,0], vertices[:,1], 'bo')
-
-        edges = [[e._origin, e.dest()] for e in self._edgelist.edges()]
-        edges = LineColl(edges)
-        plt.gca().add_collection(edges)
-
-        plt.axis([0, 1, 0, 1])
-        plt.savefig(str(self._jpgCounter) + '.png')
-        self._jpgCounter += 1
-        plt.close()
-
-if __name__ == "__main__":
-    points = Calc.getSitePoints(1024)
-    diagram = Diagram(points)
-    print('perimeter: ' + str(Calc.roundBetter(diagram.getPerimeter())))
-    diagram.plot(points)
+        return (edges, sites, vertices)
 

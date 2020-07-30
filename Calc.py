@@ -143,6 +143,8 @@ def getTime(dest, v):
 
 def extend(point, vector):
     boundingPts = getUseful(point, vector)
+    if len(boundingPts) == 0:
+        return None
     t = getTime(subtract(boundingPts[0], point), vector)
     s = getTime(subtract(boundingPts[1], point), vector)
     if (t >= 0) and (s >= 0):
@@ -185,6 +187,7 @@ def getUseful(point, vector):
     exclusive = lambda x: (x > 0) and (x < 1)
     useful = [i for i in [x0, x1] if exclusive(i[1])]
     useful += [i for i in [y0, y1] if inclusive(i[0])]
+
     return useful
 
 
