@@ -16,6 +16,7 @@ class Constants:
     PI = 3.14159265358979323
     PLOT_VERTS = False
     PLOT_SITES = True
+    LOADING = 40
 
 
 def circleCenter(a, b, c):
@@ -116,7 +117,7 @@ def dist(p1, p2):
     return ((p1[0]-p2[0])**2 + (p1[1]-p2[1])**2)**0.5
 
 def notEqual(n, m):
-    return round(n*(10**8))/(10**8) != round(m*(10**8))/(10**8)
+    return (not (n == m)) and (not (abs(n-m) <= (1e-2)*abs(max(n,m))))
 
 def subtract(a, b):
     return (a[0] - b[0], a[1] - b[1])
@@ -158,6 +159,8 @@ def extend(point, vector):
 
 def shorten(point, vector):
     boundingPts = getUseful(point, vector)
+    if len(boundingPts) == 0:
+        return None
     t = getTime(subtract(boundingPts[0], point), vector)
     s = getTime(subtract(boundingPts[1], point), vector)
     if (t >= 0) and (s >= 0):
@@ -168,6 +171,9 @@ def shorten(point, vector):
         return boundingPts[1]
     else:
         return None
+
+inclusive = lambda x: (x >= 0) and (x <= 1)
+exclusive = lambda x: (x > 0) and (x < 1)
 
 def getUseful(point, vector):
     if vector[1] == 0: # vector horizontal
@@ -183,8 +189,6 @@ def getUseful(point, vector):
     y0 = (1/slope*(0-point[1]) + point[0], 0)
     y1 = (1/slope*(1-point[1]) + point[0], 1)
 
-    inclusive = lambda x: (x >= 0) and (x <= 1)
-    exclusive = lambda x: (x > 0) and (x < 1)
     useful = [i for i in [x0, x1] if exclusive(i[1])]
     useful += [i for i in [y0, y1] if inclusive(i[0])]
 

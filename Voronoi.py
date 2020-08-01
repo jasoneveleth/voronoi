@@ -1,4 +1,5 @@
 from Diagram import Diagram
+import sys
 import Calc
 import random
 import math
@@ -24,14 +25,16 @@ def plot(d):
     plt.gca().add_collection(edges)
     plt.show()
 
-def randomOptimization(numPoints, numTrials, batchSize, jiggleSize):
+def monteCarlo(numPoints, numTrials, batchSize, jiggleSize):
     points = Calc.getSitePoints(numPoints)
     d = Diagram(points)
     collection = [(d.getPlotables(), d.getPerimeter())]
+    numTrials -= 1 # because we did the first one here ^^
 
-    for _ in range(numTrials):
+    print('doing trials...')
+    for curr in range(numTrials):
+        loadingBar(curr, numTrials)
         i = random.randrange(0, numPoints)
-        print(i)
         minData = None
         minP = math.inf
         for _ in range(batchSize):
@@ -43,17 +46,29 @@ def randomOptimization(numPoints, numTrials, batchSize, jiggleSize):
                 minData = d.getPlotables()
                 minP = p
         collection.append((minData, minP))
+    print('\ndone with trials')
     return collection
 
-def plotAnimation(collection, fileNum, numPoints):
+def loadingBar(curr, total):
+    width = int((curr/total) * Calc.Constants.LOADING) + 1
+    bar = "[" + "#" * width + " " * (Calc.Constants.LOADING - width) + "]"
+    sys.stdout.write(u"\u001b[1000D" +  bar)
+    sys.stdout.flush()
+
+def plotAnimation(collection, fileNum=1):
+    numFrames = len(collection)
     fig = plt.figure()
+    fig.subplots_adjust(hspace=0.4, wspace=0.4)
     ax1 = fig.add_subplot(2, 1, 1)
     ax2 = fig.add_subplot(2, 1, 2, aspect='equal')
-    ax1.set_xlim(0, numPoints)
+    ax1.set_xlim(0, numFrames)
     ax1.set_ylim(0, 30) # EWWWWW hard coded
     ax2.set_xlim(0, 1)
     ax2.set_ylim(0, 1)
-    line, = ax1.plot([], [], lw=3) # comma unpacks the tuple, taking first argument
+    ax1.set_title('gamma function')
+    ax2.set_title('voronoi diagram')
+
+    gammaLine, = ax1.plot([], [], lw=3) # comma unpacks the tuple, taking first argument
     edges = LineColl(())
     sites, = ax2.plot([], [], 'ro')
     ax2.add_collection(edges)
@@ -68,15 +83,15 @@ def plotAnimation(collection, fileNum, numPoints):
         gamma.append(collection[i][1])
         x = np.arange(len(gamma))
         y = np.array(gamma)
-        line.set_data(x, y)
-        return line,edges,sites,
+        gammaLine.set_data(x, y)
+        return gammaLine,edges,sites,
 
-    anim = FuncAnimation(fig, animate, frames=201,
+    anim = FuncAnimation(fig, animate, frames=numFrames,
                          interval=20, blit=True)
     anim.save('optimization{}.gif'.format(fileNum), writer='imagemagick')
 
 if __name__ == "__main__":
     # makeSimple()
-    collection = randomOptimization(50, 200, 10, 0.02)
-    plotAnimation(collection, 1, 201)
+    collection = monteCarlo(50, 200, 10, 0.02)
+    plotAnimation(collection)
 

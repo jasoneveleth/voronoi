@@ -108,9 +108,9 @@ class Diagram:
 
     def pruneEdges(self, points):
         toRemove = set()
+        exists = lambda x: x is not None # function which determines existence
         for e in self._edgelist.edges():
             t = e._twin
-            exists = lambda x: x is not None # function which determines existence
             if not (exists(e._origin) or exists(t._origin)):
                 if Calc.isOutside(e._point):
                     inward = e if (Calc.extend(t._point, t._vector) is None) else t
@@ -141,6 +141,6 @@ class Diagram:
     def getPlotables(self):
         vertices = [e._origin for e in self._edgelist.edges()]
         edges = [[e._origin, e.dest()] for e in self._edgelist.edges()]
-        sites = self._sites
+        sites = list(self._sites)
         return (edges, sites, vertices)
 
