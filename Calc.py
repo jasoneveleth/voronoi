@@ -37,9 +37,9 @@ def circleBottom(a, b, c):
 def wiggle(point, r):
     radius = r*random()
     theta = random()*2*Constants.PI
-    point[0] += radius*math.cos(theta)
-    point[1] += radius*math.sin(theta)
-    return point
+    x = point[0] + radius*math.cos(theta)
+    y = point[1] + radius*math.sin(theta)
+    return (x,y)
 
 def intersect(breakpoint, l):
     """takes in list of two ordered focii, and a directrix
@@ -95,7 +95,7 @@ def getSitePoints(n):
         while a in yvalues:
             a = rand()
         yvalues.append(a)
-        points.append([rand(),a])
+        points.append((rand(),a))
     return points
 
 def getProjection(point, focus):

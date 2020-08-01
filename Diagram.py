@@ -111,7 +111,7 @@ class Diagram:
         exists = lambda x: x is not None # function which determines existence
         for e in self._edgelist.edges():
             t = e._twin
-            if not (exists(e._origin) or exists(t._origin)):
+            if (not exists(e._origin)) and (not exists(t._origin)):
                 if Calc.isOutside(e._point):
                     inward = e if (Calc.extend(t._point, t._vector) is None) else t
                     inward._origin = Calc.shorten(inward._point, inward._vector)
@@ -141,6 +141,5 @@ class Diagram:
     def getPlotables(self):
         vertices = [e._origin for e in self._edgelist.edges()]
         edges = [[e._origin, e.dest()] for e in self._edgelist.edges()]
-        sites = list(self._sites)
-        return (edges, sites, vertices)
+        return (edges, list(self._sites), vertices)
 

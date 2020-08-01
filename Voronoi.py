@@ -29,7 +29,7 @@ def monteCarlo(numPoints, numTrials, batchSize, jiggleSize):
     points = Calc.getSitePoints(numPoints)
     d = Diagram(points)
     collection = [(d.getPlotables(), d.getPerimeter())]
-    numTrials -= 1 # because we did the first one here ^^
+    numTrials -= 1 # we did the first one here ^^
 
     print('doing trials...')
     for curr in range(numTrials):
@@ -55,6 +55,40 @@ def loadingBar(curr, total):
     sys.stdout.write(u"\u001b[1000D" +  bar)
     sys.stdout.flush()
 
+def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
+    points = Calc.getSitePoints(numPoints)
+    d = Diagram(points)
+    collection = [(d.getPlotables(), d.getPerimeter())]
+    numTrials -= 1 # we did the first one here ^^
+
+    print('doing trials...')
+    for curr in range(numTrials):
+        loadingBar(curr, numTrials)
+        gradient = []
+        p0 = collection[-1][1]
+        for i,point  in enumerate(points):
+            for j in range(2):
+                testPoints = list(points)
+                dx = jiggleSize*j
+                dy = jiggleSize*(1-j)
+                testPoints[i] = (point[0]+dx, point[1]+dy)
+                d._sites = testPoints
+                d.fortunes()
+                pwiggle = d.getPerimeter()
+                gradient.append((pwiggle - p0)/jiggleSize)
+        for i in range(len(points)):
+            points[i] = (points[i][0]+stepSize*gradient[2*i - 1],
+                         points[i][1]+stepSize*gradient[2*i])
+        d._sites = points
+        d.fortunes()
+        collection.append((d.getPlotables(), d.getPerimeter()))
+            
+    print('\ndone with trials')
+    return collection
+
+def newtonsMethod(numPoints, numTrials, stepSize, jiggleSize):
+    pass
+
 def plotAnimation(collection, fileNum=1):
     numFrames = len(collection)
     fig = plt.figure()
@@ -68,7 +102,7 @@ def plotAnimation(collection, fileNum=1):
     ax1.set_title('gamma function')
     ax2.set_title('voronoi diagram')
 
-    gammaLine, = ax1.plot([], [], lw=3) # comma unpacks the tuple, taking first argument
+    gammaLine, = ax1.plot([], [], lw=3) # comma unpacks the tuple, takes first argument
     edges = LineColl(())
     sites, = ax2.plot([], [], 'ro')
     ax2.add_collection(edges)
@@ -92,6 +126,9 @@ def plotAnimation(collection, fileNum=1):
 
 if __name__ == "__main__":
     # makeSimple()
-    collection = monteCarlo(50, 200, 10, 0.02)
+    numPoints = 50
+    numTrials = 500
+    jiggleSize = 0.2
+    collection = monteCarlo(numPoints, numTrials, 10, jiggleSize)
+    # collection = gradientDescent(numPoints, numTrials, jiggleSize, 0.1)
     plotAnimation(collection)
-
