@@ -1,4 +1,3 @@
-from math import ceil
 import Calc
 
 class Event:
@@ -7,17 +6,13 @@ class Event:
         self._index = index
         if self._kind == 'site':
             self._site = data
+            self._key = self._site[1]
         elif self._kind == 'circle':
             self._leaf = data
             self._point = p
+            self._key = self._point[1]
         else:
             raise TypeError("non-event")
-
-    def key(self):
-        if self._kind == 'site':
-            return self._site[1]
-        if self._kind == 'circle':
-            return self._point[1]
 
     def __str__(self):
         if self._kind == 'site':
@@ -28,11 +23,8 @@ class Event:
 
 class Heap:
     def __init__(self):
-        self.clear()
-     
-    def clear(self):
         self._array = []
-
+     
     def removeMax(self):
         last = self._array[-1]
         maximum = self._array[0]
@@ -67,12 +59,16 @@ class Heap:
         e2._index = temp
 
     def downheap(self, event):
-        while (self.hasLeft(event._index)) and (event.key() < self.maxChild(event).key()):
-            self.swap(event, self.maxChild(event))
+        while self.hasLeft(event._index):
+            maxChild = self.maxChild(event._index)
+            if event._key < self._array[maxChild]._key:
+                self.swap(event, self._array[maxChild])
+            else:
+                break
 
     def upheap(self, event):
-        while event._index > 0 and event.key() > self.parent(event).key():
-            self.swap(event, self.parent(event))
+        while event._index > 0 and event._key > self._array[self.parent(event._index)]._key:
+            self.swap(event, self._array[self.parent(event._index)])
 
     def hasLeft(self, key):
         return self.size() > 2*key + 1
@@ -80,20 +76,20 @@ class Heap:
     def hasRight(self, key):
         return self.size() > 2*key + 2
 
-    def left(self, key):
-        return self._array[2*key + 1]
+    def left(self, index):
+        return 2*index + 1
 
-    def right(self, key):
-        return self._array[2*key + 2]
+    def right(self, index):
+        return 2*index + 2
 
-    def parent(self, event):
-        return self._array[int(ceil(event._index/2.0) - 1)]
+    def parent(self, index):
+        return (index-1)//2
     
-    def maxChild(self, event):
-        if (not self.hasRight(event._index)
-            or self.left(event._index).key() > self.right(event._index).key()):
-            return self.left(event._index)
-        return self.right(event._index)
+    def maxChild(self, index):
+        if (not self.hasRight(index)
+            or self._array[self.left(index)]._key > self._array[self.right(index)]._key):
+            return self.left(index)
+        return self.right(index)
 
     def size(self):
         return len(self._array)

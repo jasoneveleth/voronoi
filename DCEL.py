@@ -27,8 +27,8 @@ class HalfEdge:
 
 class DCEL:
     def __init__(self):
-        self._edges = []
-        self._vertices = []
+        self._edges = set()
+        self._vertices = set()
     
     def contains(self, ele):
         return ele in self._edges or ele in self._vertices
@@ -77,15 +77,15 @@ class DCEL:
     def addEdge(self, point):
         edge = HalfEdge()
         edge._twin = HalfEdge()
-        self._edges.append(edge)
-        self._edges.append(edge._twin)
+        self._edges.add(edge)
+        self._edges.add(edge._twin)
         edge._point = point
         edge._twin._point = point
         edge._twin._twin = edge
         return edge
 
     def removeEdge(self, edge):
-        self._edges.pop(self._edges.index(edge))
+        self._edges.remove(edge)
 
     def initCircleVector(self, edge, bp, bottom):
         site1, site2 = bp

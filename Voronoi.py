@@ -1,4 +1,4 @@
-from Diagram import Diagram
+from Diagram import fortunes, getPerimeter
 import sys
 import Calc
 import random
@@ -10,28 +10,23 @@ from matplotlib.collections import LineCollection as LineColl
 
 def makeSimple():
     points = Calc.getSitePoints(150)
-    d = Diagram(points)
-    print(d.getPerimeter())
-    plot(d)
+    edges = fortunes(points)
+    print(getPerimeter(edges))
+    plot(edges, points)
 
-def plot(d):
-    edges, sites, vertices = d.getPlotables()
+def plot(edges, sites):
     plt.axis([0, 1, 0, 1])
     sites = np.array(sites)
-    # vertices = np.array(vertices)
     edges = LineColl(edges)
     plt.plot(sites[:,0], sites[:,1], 'ro')
-    # plt.plot(vertices[:,0], vertices[:,1], 'bo')
     plt.gca().add_collection(edges)
     plt.show()
 
 def monteCarlo(numPoints, numTrials, batchSize, jiggleSize):
     points = Calc.getSitePoints(numPoints)
-    d = Diagram(points)
-    collection = [(d.getPlotables(), d.getPerimeter())]
-    numTrials -= 1 # we did the first one here ^^
-
+    collection = []
     print('doing trials...')
+
     for curr in range(numTrials):
         loadingBar(curr, numTrials)
         i = random.randrange(0, numPoints)
@@ -39,13 +34,13 @@ def monteCarlo(numPoints, numTrials, batchSize, jiggleSize):
         minP = math.inf
         for _ in range(batchSize):
             points[i] = Calc.wiggle(points[i], jiggleSize)
-            d._sites = points
-            d.fortunes()
-            p = d.getPerimeter()
+            edges = fortunes(points)
+            p = getPerimeter(edges)
             if p < minP:
-                minData = d.getPlotables()
+                minData = (edges, list(points))
                 minP = p
         collection.append((minData, minP))
+
     print('\ndone with trials')
     return collection
 
@@ -57,11 +52,11 @@ def loadingBar(curr, total):
 
 def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
     points = Calc.getSitePoints(numPoints)
-    d = Diagram(points)
-    collection = [(d.getPlotables(), d.getPerimeter())]
+    edges = fortunes(points)
+    collection = [((edges, list(points)), getPerimeter(edges))]
     numTrials -= 1 # we did the first one here ^^
-
     print('doing trials...')
+
     for curr in range(numTrials):
         loadingBar(curr, numTrials)
         gradient = []
@@ -72,16 +67,14 @@ def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
                 dx = jiggleSize*j
                 dy = jiggleSize*(1-j)
                 testPoints[i] = (point[0]+dx, point[1]+dy)
-                d._sites = testPoints
-                d.fortunes()
-                pwiggle = d.getPerimeter()
+                edges = fortunes(testPoints)
+                pwiggle = getPerimeter(edges)
                 gradient.append((pwiggle - p0)/jiggleSize)
         for i in range(len(points)):
             points[i] = (points[i][0]+stepSize*gradient[2*i - 1],
                          points[i][1]+stepSize*gradient[2*i])
-        d._sites = points
-        d.fortunes()
-        collection.append((d.getPlotables(), d.getPerimeter()))
+        edges = fortunes(points)
+        collection.append(((edges, list(points)), getPerimeter(edges)))
             
     print('\ndone with trials')
     return collection
@@ -99,19 +92,20 @@ def plotAnimation(collection, fileNum=1):
     ax1.set_ylim(0, 30) # EWWWWW hard coded
     ax2.set_xlim(0, 1)
     ax2.set_ylim(0, 1)
-    ax1.set_title('gamma function')
+    ax1.set_title('gamma function (perimeter)')
     ax2.set_title('voronoi diagram')
 
-    gammaLine, = ax1.plot([], [], lw=3) # comma unpacks the tuple, takes first argument
+    gammaLine, = ax1.plot([], [], lw=3) # the comma unpacks the tuple
     edges = LineColl(())
     sites, = ax2.plot([], [], 'ro')
     ax2.add_collection(edges)
     gamma = []
 
     def animate(i):
-        tempE, tempS, vertices = collection[i][0]
+        tempE, tempS = collection[i][0]
         edges.set_segments(tempE)
-        tempS = np.array(tempS)
+        tempS = np.array(list(tempS))
+        # tempS = np.fromiter(tempS, 'float,float').reshape((len(tempS),2))
         sites.set_data(tempS[:,0], tempS[:,1])
 
         gamma.append(collection[i][1])
@@ -127,8 +121,8 @@ def plotAnimation(collection, fileNum=1):
 if __name__ == "__main__":
     # makeSimple()
     numPoints = 50
-    numTrials = 500
+    numTrials = 200
     jiggleSize = 0.2
-    collection = monteCarlo(numPoints, numTrials, 10, jiggleSize)
-    # collection = gradientDescent(numPoints, numTrials, jiggleSize, 0.1)
-    plotAnimation(collection)
+    # collection = monteCarlo(numPoints, numTrials, 10, jiggleSize)
+    collection = gradientDescent(numPoints, numTrials, jiggleSize, 0.1)
+    # plotAnimation(collection)
