@@ -46,6 +46,13 @@ def intersect(breakpoint, l):
     """
     p1, p2 = breakpoint
 
+    # when sweep line and point are same height
+    if p1[1] == l or p2[1] == l:
+        higher = p1 if p1[1] > p2[1] else p2
+        lower = p2 if p1[1] > p2[1] else p1
+        point = getProjection(lower, higher)
+        return point
+
     a = 1.0/(2*(p1[1]-l)) - 1.0/(2*(p2[1] - l))
     b = float(p2[0])/(p2[1] - l) - float(p1[0])/(p1[1] - l)
     c = (float(p1[0]**2 + p1[1]**2 - l**2)/(2*(p1[1]-l)) 
@@ -55,7 +62,7 @@ def intersect(breakpoint, l):
     if a == 0:
         x = - c/b
         y = (1.0/(2*(p1[1] - l))
-            * (x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2))
+            * (x**2 - 2*p1[0]*x + p1[0]**2 + p1[1]**2 - l**2))
         return (x,y)
 
     x1,x2 = quadraticFormula(a, b, c)
@@ -108,7 +115,10 @@ def converge(p1, v1, p2, v2):
     """intersection of parameterized lines: p1 + t(v1) and p2 + s(v2)"""
     s = ((v1[0]*p1[1] - v1[0]*p2[1] + v1[1]*p2[0] - v1[1]*p1[0])
          / (v2[1]*v1[0] - v2[0]*v1[1]))
-    t = (p2[0] - p1[0] + s*v2[0])/v1[0]
+    if v1[0] != 0:
+        t = (p2[0] - p1[0] + s*v2[0])/v1[0]
+    else:
+        t = (p2[1] - p1[1] + s*v2[1])/v1[1]
     return (s > 0) and (t > 0)
 
 pointsOutward = lambda o,v: (o is not None) and (extend(o, v) is None)
@@ -133,11 +143,11 @@ def isOutside(point):
 
 def getTime(dest, v):
     """solving: dest = t * v, for t"""
-    if (notEqual(v[0], 0)) and (notEqual(v[1], 0)):
-        if notEqual(dest[0]/v[0], dest[1]/v[1]):
-            raise CurvatureError('the edge is curved {},{}'.format(dest[0]/v[0], dest[1]/v[1]))
-        return dest[0]/v[0]
-    elif notEqual(v[0], 0):
+    # if (notEqual(v[0], 0)) and (notEqual(v[1], 0)):
+    #     if notEqual(dest[0]/v[0], dest[1]/v[1]):
+    #         raise CurvatureError('the edge is curved {},{}'.format(dest[0]/v[0], dest[1]/v[1]))
+    #     return dest[0]/v[0]
+    if notEqual(v[0], 0):
         return dest[0]/v[0]
     else:
         return dest[1]/v[1]
@@ -194,4 +204,11 @@ def getUseful(point, vector):
 
     return useful
 
-
+def rotate(point, degrees=30):
+    x,y = point
+    x -= 0.5
+    y -= 0.5
+    theta = degrees * math.pi / 180
+    tempX = x*math.cos(theta) - y*math.sin(theta)
+    tempY = x*math.sin(theta) + y*math.cos(theta)
+    return (tempX+0.5, tempY+0.5)

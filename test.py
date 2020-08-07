@@ -1,29 +1,19 @@
 import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib.animation import FuncAnimation
-plt.style.use('seaborn-pastel')
+import math
+from Calc import rotate
+from Diagram import fortunes
+from Voronoi import plot
 
-fig = plt.figure()
-ax1 = fig.add_subplot(2, 1, 1, aspect='equal')
-ax2 = fig.add_subplot(2, 1, 2, aspect='equal')
-ax1.set_xlim(0, 1)
-ax2.set_xlim(0, 1)
-ax1.set_ylim(0, 1)
-ax2.set_ylim(0, 1)
-line, = ax2.plot([], [], lw=3) 
+a = [rotate((0.25,0.25)),
+     rotate((0.25,0.75)),
+     rotate((0.75,0.75)),
+     rotate((0.75,0.25))]
+a = [(0.25,0.25),
+      (0.25,0.75),
+      (0.75,0.75),
+      (0.75,0.25)]
 
-def init():
-    line.set_data([], [])
-    return (line,)
+b = fortunes(a)
+print(b, a)
+plot(b, a)
 
-def animate(i):
-    x = np.linspace(0, 4, 1000)
-    y = np.sin(2 * np.pi * (x - 0.01 * i))
-    line.set_data(x, y)
-    return (line,)
-
-anim = FuncAnimation(fig, animate, init_func=init,
-                               frames=200, interval=20, blit=True)
-
-
-anim.save('sine_wave.gif', writer='imagemagick')

@@ -94,7 +94,7 @@ class DCEL:
         edge._vector = Calc.subtract(futurePt, point)
         edge._origin = point
         edge._twin._vector = (-edge._vector[0], -edge._vector[1])
-    
+
     def initSiteVector(self, edge, site1, site2):
         if site1[0] > site2[0]:
             temp = site1

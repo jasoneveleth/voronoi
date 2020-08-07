@@ -224,3 +224,14 @@ import sys
             sys.stdout.flush()
             counter += 1
 
+
+
+CALC - intersect
+    # this is for when multiple points have the same y value
+    if a == 0:
+        print('FLAG')
+        x = - c/b
+        y = (1.0/(2*(p1[1] - l))
+            * (x1**2 - 2*p1[0]*x1 + p1[0]**2 + p1[1]**2 - l**2))
+        return (x,y)
+

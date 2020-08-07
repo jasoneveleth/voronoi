@@ -10,7 +10,11 @@ def fortunes(sites):
     edgelist = DCEL()
     for p in sites:
         heap.insert('site', p)
+    first, second = heap.bigPeek()
+    if first._key == second._key or fist._key == third._key:
+        specialCode(tree, heap, edgelist)
     while not heap.empty():
+        print(tree)
         event = heap.removeMax()
         if event._kind == 'site':
             handleSiteEvent(event, tree, heap, edgelist)
@@ -83,6 +87,18 @@ def handleCircleEvent(leaf, tree, heap, edgelist):
     checkNewCircle(tree.prevLeaf(prevLeaf), prevLeaf, nextLeaf, tree, heap)
     checkNewCircle(prevLeaf, nextLeaf, tree.nextLeaf(nextLeaf), tree, heap)
 
+def specialCode(tree, heap, edgelist):
+    first = heap.removeMax()
+    second = heap.removeMax()
+    root = tree.addRoot({'bp': (first._site, second._site)})
+    tree.addLeft(root, {'site': first._site})
+    tree.addRight(root, {'site': second._site})
+
+    # add edge
+    p = ((first._site[0] + second._site[0]) / 2.0,9999999999999) # could be wrong to use infinity
+    root.data['edge'] = edgelist.addEdge(p)
+    edgelist.initSiteVector(root.data['edge'], first._site, second._site)
+
 def removeFalseAlarm(leaf, heap):
     if leaf.data['event'] != None:
         heap.remove(leaf.data['event'])
@@ -99,7 +115,7 @@ def checkNewCircle(left, middle, right, tree, heap):
         middle.data['event'] = event
 
 def pruneEdges(setofEdges):
-    """takes incomplete set of halfedge objects, 
+    """takes set of incomplete halfedge objects, 
         returns set of pairs of tuples"""
     newEdges = set()
     exists = lambda x: x is not None # function which determines existence

@@ -9,10 +9,10 @@ import numpy as np
 from matplotlib.collections import LineCollection as LineColl
 
 def makeSimple():
-    points = Calc.getSitePoints(150)
+    points = Calc.getSitePoints(1050)
     edges = fortunes(points)
     print(getPerimeter(edges))
-    plot(edges, points)
+    # plot(edges, points)
 
 def plot(edges, sites):
     plt.axis([0, 1, 0, 1])
@@ -51,6 +51,36 @@ def loadingBar(curr, total):
     sys.stdout.flush()
 
 def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
+    # points = Calc.getSitePoints(numPoints)
+    points = [(0.5+0.1*math.cos(2*math.pi/3),0.5+0.1*math.sin(2*math.pi/3)),(0.5+0.1*math.cos(4*math.pi/3),0.5+0.1*math.sin(4*math.pi/3)),(0.6,0.5),(0.5,0.5)]
+    edges = fortunes(points)
+    collection = [((edges, list(points)), getPerimeter(edges))]
+    numTrials -= 1 # we did the first one here ^^
+    print('doing trials...')
+
+    for curr in range(numTrials):
+        loadingBar(curr, numTrials)
+        gradient = []
+        p0 = collection[-1][1]
+        for i,point  in enumerate(points):
+            for j in range(2):
+                testPoints = list(points)
+                dx = jiggleSize*j
+                dy = jiggleSize*(1-j)
+                testPoints[i] = (point[0]+dx, point[1]+dy)
+                edges = fortunes(testPoints)
+                pwiggle = getPerimeter(edges)
+                gradient.append((pwiggle - p0)/jiggleSize)
+        for i in range(len(points)):
+            points[i] = (points[i][0]+stepSize*gradient[2*i - 1],
+                         points[i][1]+stepSize*gradient[2*i])
+        edges = fortunes(points)
+        collection.append(((edges, list(points)), getPerimeter(edges)))
+            
+    print('\ndone with trials')
+    return collection
+
+def gradientDescentSpecialStep(numPoints, numTrials, jiggleSize):
     points = Calc.getSitePoints(numPoints)
     edges = fortunes(points)
     collection = [((edges, list(points)), getPerimeter(edges))]
@@ -121,8 +151,9 @@ def plotAnimation(collection, fileNum=1):
 if __name__ == "__main__":
     # makeSimple()
     numPoints = 50
-    numTrials = 200
-    jiggleSize = 0.2
+    numTrials = 10
+    jiggleSize = 0.05
     # collection = monteCarlo(numPoints, numTrials, 10, jiggleSize)
     collection = gradientDescent(numPoints, numTrials, jiggleSize, 0.1)
-    # plotAnimation(collection)
+    # collection = gradientDescentSpecialStep(numPoints, numTrials, 0.1)
+    plotAnimation(collection)

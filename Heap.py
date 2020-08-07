@@ -33,6 +33,12 @@ class Heap:
         self.downheap(last)
         return maximum
     
+    def bigPeek(self):
+        if self._array[1]._site[1] >= self._array[2]._site[1]:
+            return (self._array[0], self._array[1])
+        else:
+            return (self._array[0], self._array[2])
+
     def empty(self):
         return self.size() == 0
 
@@ -61,14 +67,27 @@ class Heap:
     def downheap(self, event):
         while self.hasLeft(event._index):
             maxChild = self.maxChild(event._index)
-            if event._key < self._array[maxChild]._key:
+            if self.greaterThan(self._array[maxChild], event):
                 self.swap(event, self._array[maxChild])
             else:
                 break
 
     def upheap(self, event):
-        while event._index > 0 and event._key > self._array[self.parent(event._index)]._key:
+        while event._index > 0 and self.greaterThan(event, self._array[self.parent(event._index)]):
             self.swap(event, self._array[self.parent(event._index)])
+
+    def greaterThan(self, e1, e2):
+        if e1._key > e2._key:
+            return True
+        elif e1._key < e2._key:
+            return False
+        elif e1._kind == 'circle' or e2._kind == 'circle':
+            return True
+        else:
+            if e1._site[0] < e2._site[0]: # weird but left is greater
+                return True
+            else: # this is the case when they are the same point
+                return False
 
     def hasLeft(self, key):
         return self.size() > 2*key + 1
