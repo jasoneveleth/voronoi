@@ -34,10 +34,8 @@ class Heap:
         return maximum
     
     def bigPeek(self):
-        if self._array[1]._site[1] >= self._array[2]._site[1]:
-            return (self._array[0], self._array[1])
-        else:
-            return (self._array[0], self._array[2])
+        # print(self._array)
+        return (self._array[0], self._array[self.maxChild(0)])
 
     def empty(self):
         return self.size() == 0

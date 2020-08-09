@@ -11,10 +11,9 @@ def fortunes(sites):
     for p in sites:
         heap.insert('site', p)
     first, second = heap.bigPeek()
-    if first._key == second._key or fist._key == third._key:
+    if first._key == second._key:
         specialCode(tree, heap, edgelist)
     while not heap.empty():
-        print(tree)
         event = heap.removeMax()
         if event._kind == 'site':
             handleSiteEvent(event, tree, heap, edgelist)
@@ -140,10 +139,8 @@ def pruneEdges(setofEdges):
                 existing._twin._origin = Calc.extend(existing._origin, existing._vector)
                 if Calc.isOutside(existing._origin):
                     existing._origin = Calc.shorten(existing._origin, existing._vector)
-        if e._origin[0] < t._origin[0]:
-            newEdges.add((e._origin, t._origin))
-        else:
-            newEdges.add((t._origin,e._origin))
+        if not (t._origin, e._origin) in newEdges:
+            newEdges.add((e._origin,t._origin))
     return newEdges
 
 def getPerimeter(edges):

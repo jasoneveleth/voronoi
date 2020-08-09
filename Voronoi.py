@@ -12,7 +12,7 @@ def makeSimple():
     points = Calc.getSitePoints(1050)
     edges = fortunes(points)
     print(getPerimeter(edges))
-    # plot(edges, points)
+    plot(edges, points)
 
 def plot(edges, sites):
     plt.axis([0, 1, 0, 1])
@@ -51,8 +51,7 @@ def loadingBar(curr, total):
     sys.stdout.flush()
 
 def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
-    # points = Calc.getSitePoints(numPoints)
-    points = [(0.5+0.1*math.cos(2*math.pi/3),0.5+0.1*math.sin(2*math.pi/3)),(0.5+0.1*math.cos(4*math.pi/3),0.5+0.1*math.sin(4*math.pi/3)),(0.6,0.5),(0.5,0.5)]
+    points = Calc.getSitePoints(numPoints)
     edges = fortunes(points)
     collection = [((edges, list(points)), getPerimeter(edges))]
     numTrials -= 1 # we did the first one here ^^
@@ -150,10 +149,10 @@ def plotAnimation(collection, fileNum=1):
 
 if __name__ == "__main__":
     # makeSimple()
-    numPoints = 50
-    numTrials = 10
-    jiggleSize = 0.05
+    numPoints = 1000
+    numTrials = 1
+    jiggleSize = 0.01
     # collection = monteCarlo(numPoints, numTrials, 10, jiggleSize)
-    collection = gradientDescent(numPoints, numTrials, jiggleSize, 0.1)
+    collection = gradientDescent(numPoints, numTrials, jiggleSize, 0.01)
     # collection = gradientDescentSpecialStep(numPoints, numTrials, 0.1)
     plotAnimation(collection)

@@ -78,7 +78,7 @@ class BinTree:
         else:
             raise BinTreeRootError("oops already has root")
             return self._root
-    
+
     def findArc(self, site):
         node = self._root
         while node.data['site'] is None:
@@ -90,15 +90,15 @@ class BinTree:
         return node
 
     def getMin(self, node):
-        if node._left == None:
-            return node
-        return self.getMin(node._left)
-    
+        while not node._left is None:
+            node = node._left
+        return node
+
     def getMax(self, node):
-        if node._right == None:
-            return node
-        return self.getMax(node._right)
-            
+        while not node._right is None:
+            node = node._right
+        return node
+
     def predecessor(self, node):
         if node._left == None:
             child = node
@@ -111,7 +111,7 @@ class BinTree:
             return node
         else:
             return self.getMax(node._left)
-        
+
     def successor(self, node):
         if node._right == None:
             child = node
@@ -169,20 +169,22 @@ class BinTree:
         child._parent = grand
 
     def lowestLeaf(self, node):
-        if node._left != None:
-            return self.lowestLeaf(node._left)
-        elif node._right != None:
-            return self.lowestLeaf(node._right)
-        else:
-            return node
+        while True:
+            if not node._left is None:
+                node = node._left
+            elif not (node._right is None):
+                node = node._right
+            else:
+                return node
 
     def highestLeaf(self, node):
-        if node._right != None:
-            return self.highestLeaf(node._right)
-        elif node._left != None:
-            return self.highestLeaf(node._left)
-        else:
-            return node
+        while True:
+            if not (node._right is None):
+                node = node._right
+            elif not (node._left is None):
+                node = node._left
+            else:
+                return node
 
     def nextLeaf(self, node):
         if not (node == self.getMax(self._root)):
