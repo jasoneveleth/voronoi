@@ -1,17 +1,26 @@
-from Diagram import fortunes, getPerimeter
+#!/usr/local/bin/python3.8
+from voronoi.diagram import fortunes, getPerimeter
+import voronoi.calc as Calc
+import getch
+import os
+import shutil
+import glob
 import sys
-import Calc
 import random
 import math
+from functools import reduce
 from matplotlib.animation import FuncAnimation
+from collections import defaultdict
+from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import LineCollection as LineColl
+from scipy.spatial import Voronoi, voronoi_plot_2d
 
-def makeSimple():
-    points = Calc.getSitePoints(1050)
+def makeSimple(numPoints):
+    points = Calc.getSitePoints(numPoints)
     edges = fortunes(points)
-    print(getPerimeter(edges))
+    print('perimeter:',getPerimeter(edges))
     plot(edges, points)
 
 def plot(edges, sites):
@@ -45,73 +54,169 @@ def monteCarlo(numPoints, numTrials, batchSize, jiggleSize):
     return collection
 
 def loadingBar(curr, total):
-    width = int((curr/total) * Calc.Constants.LOADING) + 1
+    width = Calc.Constants.LOADING * (curr+1)//total
     bar = "[" + "#" * width + " " * (Calc.Constants.LOADING - width) + "]"
     sys.stdout.write(u"\u001b[1000D" +  bar)
     sys.stdout.flush()
 
+def bounce(v, dv):
+    w = Calc.sumVectors(v, dv)
+    if not Calc.isOutside(w):
+        return w
+    t = 1
+    while not Calc.isOutside(Calc.sumVectors(v, Calc.scale(t, dv))):
+        point = Calc.shorten(v, dv)
+        t = t - Calc.getTime(Calc.subtract(point, v), dv)
+        if point[1] == 0 or point[1] == 1:
+            dv = (dv[0], -dv[1])
+        else:
+            dv = (-dv[0], dv[1])
+        v = Calc.sumVectors(point, Calc.scale(t, dv))
+    return v
+
+def sticky(v, dv):
+    w = Calc.sumVectors(v, dv)
+    if not Calc.isOutside(w):
+        return w
+    return Calc.shorten(v, dv)
+
+def lib_asteriods(v, dv):
+    w = v + dv
+    if Calc.isOutside(w):
+        return w
+    return w % 1
+
+def asteroids(v, dv):
+    w = Calc.sumVectors(v, dv)
+    if not Calc.isOutside(w):
+        return w
+    return (w[0] % 1, w[1] % 1)
+
 def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
     points = Calc.getSitePoints(numPoints)
+    # points = [(0.5+0.1*math.cos(2*math.pi/3),0.5+0.1*math.sin(2*math.pi/3)),(0.5+0.1*math.cos(4*math.pi/3),0.5+0.1*math.sin(4*math.pi/3)),(0.6,0.5),(0.5,0.5)]
     edges = fortunes(points)
     collection = [((edges, list(points)), getPerimeter(edges))]
+    numTrials -= 1 # we did the first one here ^^
+    print('doing trials...')
+    for curr in range(numTrials):
+        loadingBar(curr, numTrials)
+        gradient = [[0,0] for _ in range(numPoints)]
+        p0 = collection[-1][1]
+        for i,point  in enumerate(points):
+            # x
+            points[i] = (point[0]+jiggleSize, point[1])
+            gradient[i][0] = (getPerimeter(fortunes(points)) - p0)/jiggleSize
+            points[i] = point
+            # y
+            points[i] = (point[0], point[1]+jiggleSize)
+            gradient[i][1] = (getPerimeter(fortunes(points)) - p0)/jiggleSize
+            points[i] = point
+        for i in range(len(points)):
+            points[i] = asteroids(points[i],Calc.scale(stepSize, gradient[i]))
+        edges = fortunes(points)
+        collection.append(((edges, list(points)), getPerimeter(edges)))
+    print('\ndone with trials')
+    return collection
+
+def lib_gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
+    points = np.array([[random.random(), random.random()] for _ in range(numPoints)])
+    vor = Voronoi(np.copy(points))
+    collection = [(vor, calcPerimeter(vor))]
     numTrials -= 1 # we did the first one here ^^
     print('doing trials...')
 
     for curr in range(numTrials):
         loadingBar(curr, numTrials)
-        gradient = []
+        gradient = np.zeros((numPoints,2))
         p0 = collection[-1][1]
-        for i,point  in enumerate(points):
-            for j in range(2):
-                testPoints = list(points)
-                dx = jiggleSize*j
-                dy = jiggleSize*(1-j)
-                testPoints[i] = (point[0]+dx, point[1]+dy)
-                edges = fortunes(testPoints)
-                pwiggle = getPerimeter(edges)
-                gradient.append((pwiggle - p0)/jiggleSize)
-        for i in range(len(points)):
-            points[i] = (points[i][0]+stepSize*gradient[2*i - 1],
-                         points[i][1]+stepSize*gradient[2*i])
-        edges = fortunes(points)
-        collection.append(((edges, list(points)), getPerimeter(edges)))
-            
+        for i,point in enumerate(points):
+            # x
+            testPoints = np.copy(points)
+            testPoints[i][0] += jiggleSize
+            gradient[i][0] = (calcPerimeter(Voronoi(testPoints))-p0)/jiggleSize
+            # y
+            testPoints = np.copy(points)
+            testPoints[i][1] += jiggleSize
+            gradient[i][1] = (calcPerimeter(Voronoi(testPoints))-p0)/jiggleSize
+        points += (-stepSize) * gradient
+        vor = Voronoi(np.copy(points))
+        collection.append((vor, calcPerimeter(vor)))
     print('\ndone with trials')
     return collection
+
+# https://stackoverflow.com/questions/40427022/polygon-perimeter
+def calcPerimeter(vor, diameter=2):
+    centroid = vor.points.mean(axis=0)
+
+    # Mapping from (input point index, Voronoi point index) to list of
+    # unit vectors in the directions of the infinite ridges starting
+    # at the Voronoi point and neighbouring the input point.
+    ridge_direction = defaultdict(list)
+    for (p, q), rv in zip(vor.ridge_points, vor.ridge_vertices):
+        u, v = sorted(rv)
+        if u == -1:
+            # Infinite ridge starting at ridge point with index v,
+            # equidistant from input points with indexes p and q.
+            t = vor.points[q] - vor.points[p] # tangent
+            n = np.array([-t[1], t[0]]) / np.linalg.norm(t) # normal
+            midpoint = vor.points[[p, q]].mean(axis=0)
+            direction = np.sign(np.dot(midpoint - centroid, n)) * n
+            ridge_direction[p, v].append(direction)
+            ridge_direction[q, v].append(direction)
+
+    listOfPolygons = []
+    for i, r in enumerate(vor.point_region):
+        region = vor.regions[r]
+        if -1 not in region:
+            # Finite region.
+            listOfPolygons.append(Polygon(vor.vertices[region]))
+            continue
+        # Infinite region.
+        inf = region.index(-1)              # Index of vertex at infinity.
+        j = region[(inf - 1) % len(region)] # Index of previous vertex.
+        k = region[(inf + 1) % len(region)] # Index of next vertex.
+        if j == k:
+            # Region has one Voronoi vertex with two ridges.
+            dir_j, dir_k = ridge_direction[i, j]
+        else:
+            # Region has two Voronoi vertices, each with one ridge.
+            dir_j, = ridge_direction[i, j]
+            dir_k, = ridge_direction[i, k]
+
+        # Length of ridges needed for the extra edge to lie at least
+        # 'diameter' away from all Voronoi vertices.
+        length = 2 * diameter / np.linalg.norm(dir_j + dir_k)
+
+        # Polygon consists of finite part plus an extra edge.
+        finite_part = vor.vertices[region[inf + 1:] + region[:inf]]
+        extra_edge = [vor.vertices[j] + dir_j * length,
+                      vor.vertices[k] + dir_k * length]
+        listOfPolygons.append(Polygon(np.concatenate((finite_part, extra_edge))))
+    return reduce(lambda acc,x: acc+x.length, listOfPolygons, 0)
+
+def lib_visualize(collection, fileNum=''):
+    os.mkdir('temp')
+    for i, (vor, perimeter) in enumerate(collection):
+        fig = voronoi_plot_2d(vor)
+        plt.xlim([0, 1]), plt.ylim([0, 1])
+        plt.savefig(f"temp/{i}.png")
+        plt.close(fig)
+    fileList = glob.glob('temp/*.png')
+    list.sort(fileList, key=lambda x: int(x.split('/')[-1].split('.')[0]))
+    with open('temp/image_list.txt', 'w') as file:
+        for item in fileList:
+            file.write(f"{item}\n")
+    os.system(f"convert @temp/image_list.txt visuals/temp{fileNum}.gif")
+    shutil.rmtree('temp')
 
 def gradientDescentSpecialStep(numPoints, numTrials, jiggleSize):
-    points = Calc.getSitePoints(numPoints)
-    edges = fortunes(points)
-    collection = [((edges, list(points)), getPerimeter(edges))]
-    numTrials -= 1 # we did the first one here ^^
-    print('doing trials...')
-
-    for curr in range(numTrials):
-        loadingBar(curr, numTrials)
-        gradient = []
-        p0 = collection[-1][1]
-        for i,point  in enumerate(points):
-            for j in range(2):
-                testPoints = list(points)
-                dx = jiggleSize*j
-                dy = jiggleSize*(1-j)
-                testPoints[i] = (point[0]+dx, point[1]+dy)
-                edges = fortunes(testPoints)
-                pwiggle = getPerimeter(edges)
-                gradient.append((pwiggle - p0)/jiggleSize)
-        for i in range(len(points)):
-            points[i] = (points[i][0]+stepSize*gradient[2*i - 1],
-                         points[i][1]+stepSize*gradient[2*i])
-        edges = fortunes(points)
-        collection.append(((edges, list(points)), getPerimeter(edges)))
-            
-    print('\ndone with trials')
-    return collection
+    pass
 
 def newtonsMethod(numPoints, numTrials, stepSize, jiggleSize):
     pass
 
-def plotAnimation(collection, fileNum=1):
+def plotAnimation(collection, fileNum=''):
     numFrames = len(collection)
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
@@ -145,14 +250,36 @@ def plotAnimation(collection, fileNum=1):
 
     anim = FuncAnimation(fig, animate, frames=numFrames,
                          interval=20, blit=True)
-    anim.save('optimization{}.gif'.format(fileNum), writer='imagemagick')
+    anim.save(f'visuals/temp{fileNum}.gif', writer='imagemagick')
 
 if __name__ == "__main__":
-    # makeSimple()
-    numPoints = 1000
-    numTrials = 1
-    jiggleSize = 0.01
-    # collection = monteCarlo(numPoints, numTrials, 10, jiggleSize)
-    collection = gradientDescent(numPoints, numTrials, jiggleSize, 0.01)
-    # collection = gradientDescentSpecialStep(numPoints, numTrials, 0.1)
-    plotAnimation(collection)
+    numPoints = 50
+    numTrials = 150
+    stepSize = 0.002
+    jiggleSize = 0.001
+    print(f"""
+points: {numPoints}, trials: {numTrials}, change: {stepSize}, jiggle: {jiggleSize}
+input desired simulation:
+\t0: make simple diagram
+\t1: gradient descent (then plot)
+\t2: scipy gradient descent (then plot)
+\t3: monte carlo (then plot)
+\t4: gradient descent with special step (then plot)"""[1:])
+    sys.stdout.write('(0/1/2/3/4) ')
+    sys.stdout.flush()
+    char = getch.getche()
+    print('\n\n')
+    if char == '1':
+        collection = gradientDescent(numPoints, numTrials, stepSize, jiggleSize)
+        plotAnimation(collection)
+    elif char == '2':
+        collection = lib_gradientDescent(numPoints, numTrials, stepSize, jiggleSize)
+        lib_visualize(collection)
+    elif char == '3':
+        collection = monteCarlo(numPoints, numTrials, 10, jiggleSize)
+        plotAnimation(collection)
+    elif char == '4':
+        collection = gradientDescentSpecialStep(numPoints, numTrials, 0.1)
+        plotAnimation(collection)
+    else:
+        makeSimple(numPoints)

@@ -1,4 +1,4 @@
-from Calc import getSitePoints
+from voronoi.calc import getSitePoints
 from Voronoi import fortunes
 from scipy.spatial import Voronoi, voronoi_plot_2d
 import matplotlib.pyplot as plt

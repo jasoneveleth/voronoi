@@ -1,4 +1,4 @@
-import Calc
+import voronoi.calc as Calc
 
 class BinTreeOrganizationError(Exception):
     def __init__(self, message):

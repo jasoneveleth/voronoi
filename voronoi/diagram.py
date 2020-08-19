@@ -1,8 +1,8 @@
-import Calc
+import voronoi.calc as Calc
 from functools import reduce
-from BinTree import BinTree
-from DCEL import DCEL
-from Heap import Heap
+from voronoi.bintree import BinTree
+from voronoi.edgelist import DCEL
+from voronoi.heap import Heap
 
 def fortunes(sites):
     heap = Heap()

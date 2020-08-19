@@ -1,4 +1,4 @@
-import Calc
+import voronoi.calc as Calc
 
 class Event:
     def __init__(self, index, kind, data, p=None):

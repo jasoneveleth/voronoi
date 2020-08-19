@@ -21,11 +21,11 @@ class Constants:
 
 def circleCenter(a, b, c):
     d = 2*(a[0]*(b[1]-c[1]) + b[0]*(c[1]-a[1]) + c[0]*(a[1]-b[1]))
-    x = (1.0/d)*((a[0]**2 + a[1]**2)*(b[1] - c[1]) 
-                 + (b[0]**2 + b[1]**2)*(c[1] - a[1]) 
+    x = (1.0/d)*((a[0]**2 + a[1]**2)*(b[1] - c[1])
+                 + (b[0]**2 + b[1]**2)*(c[1] - a[1])
                  + (c[0]**2 + c[1]**2)*(a[1] - b[1]))
-    y = (1.0/d)*((a[0]**2 + a[1]**2)*(c[0] - b[0]) 
-                 + (b[0]**2 + b[1]**2)*(a[0] - c[0]) 
+    y = (1.0/d)*((a[0]**2 + a[1]**2)*(c[0] - b[0])
+                 + (b[0]**2 + b[1]**2)*(a[0] - c[0])
                  + (c[0]**2 + c[1]**2)*(b[0] - a[0]))
     return (x,y)
 
@@ -50,20 +50,20 @@ def intersect(breakpoint, l):
     if p1[1] == l or p2[1] == l:
         higher = p1 if p1[1] > p2[1] else p2
         lower = p2 if p1[1] > p2[1] else p1
-        point = getProjection(lower, higher)
-        return point
+        return getProjection(lower, higher)
 
-    a = 1.0/(2*(p1[1]-l)) - 1.0/(2*(p2[1] - l))
     b = float(p2[0])/(p2[1] - l) - float(p1[0])/(p1[1] - l)
-    c = (float(p1[0]**2 + p1[1]**2 - l**2)/(2*(p1[1]-l)) 
+    c = (float(p1[0]**2 + p1[1]**2 - l**2)/(2*(p1[1]-l))
         - float(p2[0]**2 + p2[1]**2 - l**2)/(2*(p2[1] - l)))
 
     # this is for when multiple points have the same y value
-    if a == 0:
+    if p1[1] == p2[1]:
         x = - c/b
         y = (1.0/(2*(p1[1] - l))
             * (x**2 - 2*p1[0]*x + p1[0]**2 + p1[1]**2 - l**2))
         return (x,y)
+
+    a = 1.0/(2*(p1[1]-l)) - 1.0/(2*(p2[1] - l))
 
     x1,x2 = quadraticFormula(a, b, c)
     y1 = (1.0/(2*(p1[1] - l))
@@ -107,9 +107,9 @@ def getSitePoints(n):
 
 def getProjection(point, focus):
     directrix = point[1]
-    y = ((1.0/(2*(focus[1] - directrix))) * (point[0] - focus[0])**2 
+    y = ((1.0/(2*(focus[1] - directrix))) * (point[0] - focus[0])**2
          + (point[1] + focus[1])/2.0)
-    return (point[0], y) 
+    return (point[0], y)
 
 def converge(p1, v1, p2, v2):
     """intersection of parameterized lines: p1 + t(v1) and p2 + s(v2)"""
@@ -131,6 +131,9 @@ def notEqual(n, m):
 
 def subtract(a, b):
     return (a[0] - b[0], a[1] - b[1])
+
+def scale(c, v):
+    return (c*v[0], c*v[1])
 
 def sumVectors(v, w):
     return (v[0] + w[0], v[1] + w[1])
@@ -187,7 +190,7 @@ exclusive = lambda x: (x > 0) and (x < 1)
 
 def getUseful(point, vector):
     if vector[1] == 0: # vector horizontal
-        y = point[1] 
+        y = point[1]
         return [(0,y),(1,y)]
     elif vector[0] == 0: # vector vertical
         x = point[0]

@@ -1,4 +1,4 @@
-import Calc
+import voronoi.calc as Calc
 
 class Vertex:
     def __init__(self, coordinates):

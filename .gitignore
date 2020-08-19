@@ -6,3 +6,4 @@ convert.py
 __pycache__/
 *.pyc
 *.gif
+temp/
