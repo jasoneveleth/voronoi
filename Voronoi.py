@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3.8
-from voronoi.diagram import fortunes, getPerimeter
+from voronoi.algorithm import fortunes, getPerimeter
 import voronoi.calc as Calc
 import getch
 import os

@@ -1,9 +1,2 @@
-tags
-*.swp
-.DS_Store
-.git/
-convert.py
-__pycache__/
-*.pyc
 *.gif
 temp/

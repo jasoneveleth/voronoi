@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 from voronoi.calc import rotate
-from voronoi.diagram import fortunes
+from voronoi.algorithm import fortunes
 from Voronoi import plot
 from scipy.spatial import Voronoi, voronoi_plot_2d
 a = [rotate((0.25,0.25)),
