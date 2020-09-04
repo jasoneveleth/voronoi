@@ -1,5 +1,6 @@
 #!/usr/local/bin/python3.8
-from voronoi.algorithm import fortunes, getPerimeter
+from voronoi.algorithm import fortunes, getPerimeter, performantPerimeter
+import multiprocessing as mp
 import voronoi.calc as Calc
 import getch
 import os
@@ -54,8 +55,9 @@ def monteCarlo(numPoints, numTrials, batchSize, jiggleSize):
     return collection
 
 def loadingBar(curr, total):
-    width = Calc.Constants.LOADING * (curr+1)//total
-    bar = "[" + "#" * width + " " * (Calc.Constants.LOADING - width) + "]"
+    width = math.ceil((Calc.Constants.LOADING * curr)/total)
+    percent = str(round((curr/total)*1000)/10)
+    bar = "[" + "#" * width + " " * (Calc.Constants.LOADING - width) + "]" + " " + percent + "%"
     sys.stdout.write(u"\u001b[1000D" +  bar)
     sys.stdout.flush()
 
@@ -92,9 +94,37 @@ def asteroids(v, dv):
         return w
     return (w[0] % 1, w[1] % 1)
 
+def generate(l, i, jiggleSize):
+    l = list(l)
+    l[i//2] = (l[i//2][0] + jiggleSize*((i+1)%2), l[i//2][1] + jiggleSize*(i%2))
+    return l
+
+def performantGradientDescent(numPoints, numTrials, stepSize, jiggleSize):
+    points = Calc.getSitePoints(numPoints)
+    edges = fortunes(points)
+    collection = [((edges, list(points)), getPerimeter(edges))]
+    numTrials -= 1 # we did the first one here ^^
+    print('doing trials...')
+    for curr in range(numTrials):
+        loadingBar(curr, numTrials)
+        p0 = collection[-1][1]
+        with mp.Pool(None) as p:
+            possibilities = [generate(points, p, jiggleSize) for p in range(numPoints*2)]
+            gradient = p.map(performantPerimeter, possibilities)
+        for i,g in enumerate(gradient):
+            gradient[i] = (g - p0)/jiggleSize
+        for i in range(len(points)):
+            points[i] = asteroids(points[i],Calc.scale(stepSize, [gradient[2*i], gradient[2*i + 1]]))
+            # points[i] = asteroids(points[i],Calc.scale(-stepSize, gradient[i]))
+        edges = fortunes(points)
+        collection.append(((edges, list(points)), getPerimeter(edges)))
+    loadingBar(numTrials, numTrials)
+    print('\ndone with trials')
+    print(collection)
+    return collection
+
 def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
     points = Calc.getSitePoints(numPoints)
-    # points = [(0.5+0.1*math.cos(2*math.pi/3),0.5+0.1*math.sin(2*math.pi/3)),(0.5+0.1*math.cos(4*math.pi/3),0.5+0.1*math.sin(4*math.pi/3)),(0.6,0.5),(0.5,0.5)]
     edges = fortunes(points)
     collection = [((edges, list(points)), getPerimeter(edges))]
     numTrials -= 1 # we did the first one here ^^
@@ -103,7 +133,7 @@ def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
         loadingBar(curr, numTrials)
         gradient = [[0,0] for _ in range(numPoints)]
         p0 = collection[-1][1]
-        for i,point  in enumerate(points):
+        for i,point in enumerate(points):
             # x
             points[i] = (point[0]+jiggleSize, point[1])
             gradient[i][0] = (getPerimeter(fortunes(points)) - p0)/jiggleSize
@@ -113,9 +143,10 @@ def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
             gradient[i][1] = (getPerimeter(fortunes(points)) - p0)/jiggleSize
             points[i] = point
         for i in range(len(points)):
-            points[i] = asteroids(points[i],Calc.scale(stepSize, gradient[i]))
+            points[i] = asteroids(points[i],Calc.scale(-stepSize, gradient[i]))
         edges = fortunes(points)
         collection.append(((edges, list(points)), getPerimeter(edges)))
+    loadingBar(numTrials, numTrials)
     print('\ndone with trials')
     return collection
 
@@ -142,6 +173,7 @@ def lib_gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
         points += (-stepSize) * gradient
         vor = Voronoi(np.copy(points))
         collection.append((vor, calcPerimeter(vor)))
+    loadingBar(numTrials, numTrials)
     print('\ndone with trials')
     return collection
 
@@ -210,12 +242,6 @@ def lib_visualize(collection, fileNum=''):
     os.system(f"convert @temp/image_list.txt visuals/temp{fileNum}.gif")
     shutil.rmtree('temp')
 
-def gradientDescentSpecialStep(numPoints, numTrials, jiggleSize):
-    pass
-
-def newtonsMethod(numPoints, numTrials, stepSize, jiggleSize):
-    pass
-
 def plotAnimation(collection, fileNum=''):
     numFrames = len(collection)
     fig = plt.figure()
@@ -253,9 +279,9 @@ def plotAnimation(collection, fileNum=''):
     anim.save(f'visuals/temp{fileNum}.gif', writer='imagemagick')
 
 if __name__ == "__main__":
-    numPoints = 50
-    numTrials = 150
-    stepSize = 0.002
+    numPoints = 200
+    numTrials = 60
+    stepSize = 0.001
     jiggleSize = 0.001
     print(f"""
 points: {numPoints}, trials: {numTrials}, change: {stepSize}, jiggle: {jiggleSize}
@@ -264,7 +290,7 @@ input desired simulation:
 \t1: gradient descent (then plot)
 \t2: scipy gradient descent (then plot)
 \t3: monte carlo (then plot)
-\t4: gradient descent with special step (then plot)"""[1:])
+\t4: performant gradient descent (then plot)""")
     sys.stdout.write('(0/1/2/3/4) ')
     sys.stdout.flush()
     char = getch.getche()
@@ -279,7 +305,7 @@ input desired simulation:
         collection = monteCarlo(numPoints, numTrials, 10, jiggleSize)
         plotAnimation(collection)
     elif char == '4':
-        collection = gradientDescentSpecialStep(numPoints, numTrials, 0.1)
+        collection = performantGradientDescent(numPoints, numTrials, stepSize, jiggleSize)
         plotAnimation(collection)
     else:
         makeSimple(numPoints)

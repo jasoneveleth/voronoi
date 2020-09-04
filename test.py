@@ -10,6 +10,8 @@ a = [rotate((0.25,0.25)),
      rotate((0.75,0.75)),
      rotate((0.75,0.25))]
 
+# for gradient descent
+    # points = [(0.5+0.1*math.cos(2*math.pi/3),0.5+0.1*math.sin(2*math.pi/3)),(0.5+0.1*math.cos(4*math.pi/3),0.5+0.1*math.sin(4*math.pi/3)),(0.6,0.5),(0.5,0.5)]
 # a = [(0.25,0.25),
 #       (0.25,0.75),
 #       (0.75,0.75),
@@ -157,3 +159,4 @@ vor = Voronoi(points)
 fig = voronoi_plot_2d(vor)
 plt.xlim([0, 1]), plt.ylim([0, 1])
 plt.savefig('visual/test')
+

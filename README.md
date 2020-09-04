@@ -25,7 +25,7 @@ handleSiteEvent(event)
 3.      return
 4.  get reference oldNode to node found above the event's node<a href="#findarc" id="fa"><sup>[1]</sup></a>
 5.  remove false alarm circle event (if oldNode has an event)
-6.  attach a subtree where oldNode used to be with two new breakpoints and 
+6.  attach a subtree where oldNode used to be with two new breakpoints and
     three new edges like this:
       A    ->       [A,B]
                     /   \
@@ -40,12 +40,12 @@ handleSiteEvent(event)
 ## Handle Circle Event ##
 <pre>
 handleCircleEvent(leaf)
-1.  get references to next leaf, previous leaf, next breakpoint, and 
+1.  get references to next leaf, previous leaf, next breakpoint, and
     previous breakpoint.
 2.  remove the leaf
-3.  take the breakpoint (either next or prev) whose child was the leaf, and 
-    replace it with the other child. Then reassign the other breakpoint 
-    (either next or prev) so that the two points properly reflect what is 
+3.  take the breakpoint (either next or prev) whose child was the leaf, and
+    replace it with the other child. Then reassign the other breakpoint
+    (either next or prev) so that the two points properly reflect what is
     going on:
             [A,B]                   [A,C]
             /   \                   /   \
@@ -64,11 +64,11 @@ handleCircleEvent(leaf)
 7.  check for circle events (the same way as before)
 </pre>
 
-<a id="findarc" href="#fa">[1]</a> Trace down the tree, and at each breakpoint, take the two sites, find the one with the higher y-value (the older one), and this shows if we are on the left, or right intersection of the parabolas.[⏎](#fa)
+<a id="findarc" href="#fa">[1]</a> Trace down the tree, and at each breakpoint, take the two sites, find the one with the higher y-value (the older one), and this shows if we are on the left, or right intersection of the parabolas. Then once a leaf is hit, return it.[⏎](#fa)
 
 
-<a id="checkcircle" href="#cc">[2]</a> When we create half edges, we store 
-the point that we know they contain, and the vector toward the edge, then 
+<a id="checkcircle" href="#cc">[2]</a> When we create half edges, we store
+the point that we know they contain, and the vector toward the edge, then
 when we solve the vector equation:
 ```p1 + t(v1) = p2 + s(v2)```
 where p1, p2, v1, v2 are known vectors, and t, s are the unknowns. [⏎](#cc)

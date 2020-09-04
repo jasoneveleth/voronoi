@@ -14,8 +14,6 @@ class CurvatureError(Exception):
 
 class Constants:
     PI = 3.14159265358979323
-    PLOT_VERTS = False
-    PLOT_SITES = True
     LOADING = 40
 
 

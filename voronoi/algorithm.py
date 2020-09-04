@@ -21,6 +21,21 @@ def fortunes(sites):
             handleCircleEvent(event._leaf, tree, heap, edgelist)
     return pruneEdges(edgelist.edges())
 
+def performantPerimeter(sites):
+    heap = Heap()
+    tree = BinTree()
+    edgelist = DCEL()
+    for p in sites:
+        heap.insert('site', p)
+    while not heap.empty():
+        event = heap.removeMax()
+        if event._kind == 'site':
+            handleSiteEvent(event, tree, heap, edgelist)
+        else:
+            handleCircleEvent(event._leaf, tree, heap, edgelist)
+    return pruneEdgeReturnPerimeter(edgelist.edges())
+
+
 def handleSiteEvent(event, tree, heap, edgelist):
     if tree.empty():
         tree.addRoot({'site': event._site})
@@ -113,8 +128,37 @@ def checkNewCircle(left, middle, right, tree, heap):
         event = heap.insert('circle', middle, p)
         middle.data['event'] = event
 
+def pruneEdgeReturnPerimeter(setofEdges):
+    """takes set of incomplete halfedge objects,
+        returns set of pairs of tuples"""
+    perimeter = 0
+    exists = lambda x: x is not None # function which determines existence
+    for e in setofEdges:
+        t = e._twin
+        if (not exists(e._origin)) and (not exists(t._origin)):
+            if Calc.isOutside(e._point):
+                inward = e if (Calc.extend(t._point, t._vector) is None) else t
+                inward._origin = Calc.shorten(inward._point, inward._vector)
+                inward._twin._origin = Calc.extend(inward._point, inward._vector)
+            else:
+                e._origin = Calc.shorten(e._point, e._vector)
+                t._origin = Calc.shorten(t._point, t._vector)
+        else:
+            if Calc.pointsOutward(e._origin, e._vector) or Calc.pointsOutward(t._origin, t._vector):
+                continue
+            elif exists(e._origin) and exists(t._origin):
+                for outside in filter(lambda x: Calc.isOutside(x._origin), [e,t]):
+                    outside._origin = Calc.shorten(outside._origin, outside._vector)
+            else: # only one exists
+                existing = e if not (e._origin is None) else t
+                existing._twin._origin = Calc.extend(existing._origin, existing._vector)
+                if Calc.isOutside(existing._origin):
+                    existing._origin = Calc.shorten(existing._origin, existing._vector)
+        perimeter += Calc.dist(t._origin, e._origin)
+    return 4 + (perimeter/2)
+
 def pruneEdges(setofEdges):
-    """takes set of incomplete halfedge objects, 
+    """takes set of incomplete halfedge objects,
         returns set of pairs of tuples"""
     newEdges = set()
     exists = lambda x: x is not None # function which determines existence

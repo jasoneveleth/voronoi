@@ -7,9 +7,10 @@ import timeit
 repeats = 50
 numPoints = 3000
 setup = '''
-from Calc import getSitePoints
+from voronoi.calc import getSitePoints
 from Voronoi import fortunes
 from scipy.spatial import Voronoi, voronoi_plot_2d
+import numpy as np
 '''
 setupWithCollecting = 'gc.enable()\n' + setup
 time = lambda x: timeit.Timer(x, setupWithCollecting).timeit(repeats)
@@ -17,12 +18,12 @@ time = lambda x: timeit.Timer(x, setupWithCollecting).timeit(repeats)
 
 mine = '''
 points = getSitePoints({})
-vor = Voronoi(points)
+vor = fortunes(points)
 '''.format(numPoints)
 
 theirs = '''
-points = getSitePoints({})
-vor = fortunes(points)
+points = np.array(getSitePoints({}))
+vor = Voronoi(points)
 '''.format(numPoints)
 
 tests = [mine, theirs]
