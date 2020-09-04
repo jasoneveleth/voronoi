@@ -1,9 +1,0 @@
-
-points: 200, trials: 60, change: 0.001, jiggle: 0.001
-input desired simulation:
-	0: make simple diagram
-	1: gradient descent (then plot)
-	2: scipy gradient descent (then plot)
-	3: monte carlo (then plot)
-	4: performant gradient descent (then plot)
-(0/1/2/3/4) 
