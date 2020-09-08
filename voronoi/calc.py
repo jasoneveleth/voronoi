@@ -16,6 +16,10 @@ class Constants:
     PI = 3.14159265358979323
     LOADING = 40
 
+def angleBetween(v, w):
+    det = v[0]*w[1] - v[1]*w[0]
+    dot = v[0]*w[0] + v[1]*w[1]
+    return math.atan2(det, dot)
 
 def circleCenter(a, b, c):
     d = 2*(a[0]*(b[1]-c[1]) + b[0]*(c[1]-a[1]) + c[0]*(a[1]-b[1]))

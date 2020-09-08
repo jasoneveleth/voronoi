@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3.8
-from voronoi.algorithm import fortunes, getPerimeter, performantPerimeter
+from voronoi.algorithm import fortunes, getPerimeter, performantPerimeter, newfortunes
 import multiprocessing as mp
 import voronoi.calc as Calc
 import getch
@@ -21,6 +21,12 @@ from scipy.spatial import Voronoi, voronoi_plot_2d
 def makeSimple(numPoints):
     points = Calc.getSitePoints(numPoints)
     edges = fortunes(points)
+    print('perimeter:',getPerimeter(edges))
+    plot(edges, points)
+
+def testing(numPoints):
+    points = Calc.getSitePoints(numPoints)
+    edges = newfortunes(points)
     print('perimeter:',getPerimeter(edges))
     plot(edges, points)
 
@@ -120,7 +126,6 @@ def performantGradientDescent(numPoints, numTrials, stepSize, jiggleSize):
         collection.append(((edges, list(points)), getPerimeter(edges)))
     loadingBar(numTrials, numTrials)
     print('\ndone with trials')
-    print(collection)
     return collection
 
 def gradientDescent(numPoints, numTrials, stepSize, jiggleSize):
@@ -248,8 +253,11 @@ def plotAnimation(collection, fileNum=''):
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
     ax1 = fig.add_subplot(2, 1, 1)
     ax2 = fig.add_subplot(2, 1, 2, aspect='equal')
+    perimeters = []
+    for e in collection:
+        perimeters.append(e[1])
     ax1.set_xlim(0, numFrames)
-    ax1.set_ylim(0, 30) # EWWWWW hard coded
+    ax1.set_ylim(0, 4*max(perimeters)/3) # EWWWWW hard coded
     ax2.set_xlim(0, 1)
     ax2.set_ylim(0, 1)
     ax1.set_title('gamma function (perimeter)')
@@ -279,10 +287,10 @@ def plotAnimation(collection, fileNum=''):
     anim.save(f'visuals/temp{fileNum}.gif', writer='imagemagick')
 
 if __name__ == "__main__":
-    numPoints = 200
-    numTrials = 60
-    stepSize = 0.001
-    jiggleSize = 0.001
+    numPoints = 3
+    numTrials = 100
+    stepSize = 0.0001
+    jiggleSize = 0.0001
     print(f"""
 points: {numPoints}, trials: {numTrials}, change: {stepSize}, jiggle: {jiggleSize}
 input desired simulation:
@@ -307,5 +315,7 @@ input desired simulation:
     elif char == '4':
         collection = performantGradientDescent(numPoints, numTrials, stepSize, jiggleSize)
         plotAnimation(collection)
+    elif char == '5':
+        testing(numPoints)
     else:
         makeSimple(numPoints)

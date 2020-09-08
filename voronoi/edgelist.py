@@ -4,9 +4,16 @@ class Vertex:
     def __init__(self, coordinates):
         self._coordinates = coordinates
         self._incidentEdge = None
-    
+
     def __str__(self):
         return 'coordinates: ' + str(self._coordinates)
+
+class Face:
+    def __init__(self):
+        self._edges = []
+
+    def addEdge(self, e):
+        self._edges.append(e)
 
 class HalfEdge:
     def __init__(self):
@@ -17,10 +24,10 @@ class HalfEdge:
         self._prev = None
         self._point = None
         self._vector = None
-    
+
     def dest(self):
         return self._twin._origin
-    
+
     def __str__(self):
         return 'origin: ' + str(list(map(Calc.roundBetter, self._origin)) if self._origin is not None else None) + ', dest: ' + str((list(map(Calc.roundBetter, self.dest()))) if self.dest() is not None else None) + ', point: ' + str(self._point) + ', vector: ' + str(self._vector)
 
@@ -29,10 +36,11 @@ class DCEL:
     def __init__(self):
         self._edges = set()
         self._vertices = set()
-    
+        self._faces = set()
+
     def contains(self, ele):
-        return ele in self._edges or ele in self._vertices
-    
+        return ele in self._edges or ele in self._vertices or ele in self._faces
+
     def incidentEdges(self, vertex):
         incidentEdges = []
         edge = vertex._incidentEdge._next
@@ -41,7 +49,19 @@ class DCEL:
             edge = edge._twin
             incidentEdges.append(edge)
             edge = edge._next
-    
+        return incidentEdges
+
+    def boundingEdges(self, face):
+        return face._edges
+
+    def addFace(self):
+        f = Face()
+        self._faces.add(f)
+        return f
+
+    def faces(self):
+        return self._faces
+
     def assignAdjacency(self, coord, edge1, edge2):
         if edge1._origin != coord:
             if edge2._origin != coord:
@@ -68,12 +88,12 @@ class DCEL:
 
     def edges(self):
         return self._edges
-    
+
     def addVertex(self, xy):
         vertex = Vertex(xy)
         self._vertices.append(vertex)
         return vertex
-    
+
     def addEdge(self, point):
         edge = HalfEdge()
         edge._twin = HalfEdge()
