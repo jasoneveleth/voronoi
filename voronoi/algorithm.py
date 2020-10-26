@@ -19,7 +19,7 @@ def fortunes(sites):
             handleSiteEvent(event, tree, heap, edgelist)
         else:
             handleCircleEvent(event._leaf, tree, heap, edgelist)
-    return pruneEdges(edgelist)
+    return pruneEdges(edgelist.edges())
 
 def newfortunes(sites):
     '''makes faces'''
