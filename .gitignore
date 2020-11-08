@@ -1,3 +1,4 @@
 *.gif
 temp/
 venv/
+__pycache__/
