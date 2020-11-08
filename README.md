@@ -10,7 +10,7 @@ $ python3.8 -m venv <environment_name>
         ^ can be your prefered python version over 3.x.x
 ```
 
-Then run this everytime you want to run Voronoi.py
+Then run this everytime you enter the repo (want to use python), it will use correct python and correct packages until the deactivate command:
 
 ```bash
 $ source <environment_name>/bin/activate
