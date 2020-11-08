@@ -1,7 +1,22 @@
-# Pseudocode #
+# Voronoi Diagrams
+
+### Set up
+We use `venv`. For \*nix, run the following commands after cloning (choose your own <environment\_name>:
+
+```bash
+$ python -m venv <environment_name>
+$ source <environment_name>/bin/activate
+$ python -m pip install -r requirements.txt
+...
+  # good to go, use python to run Voronoi.py
+...
+$ deactivate
+```
+
+### Pseudocode
 This is designed as a better explanation of [this textbook's](https://people.inf.elte.hu/fekete/algoritmusok_msc/terinfo_geom/konyvek/Computational%20Geometry%20-%20Algorithms%20and%20Applications,%203rd%20Ed.pdf) explanation of contructing Voronoi diagrams, and I assume you've read this already (chapter 7 and the datastructures required). This README will help explain some of my code which isn't commented.
 
-## High Level Construction ##
+#### High Level Construction
 <pre>
 fortunes(sites: list of [x,y])
 1.  initialize heap, binary tree, and edge list
@@ -18,7 +33,7 @@ fortunes(sites: list of [x,y])
 1.  return the diagram
 </pre>
 
-## Handle Site Event ##
+#### Handle Site Event
 <pre>
 handleSiteEvent(event)
 1.  if tree is empty
@@ -38,7 +53,7 @@ handleSiteEvent(event)
     after when they start)<a href="#checkcircle" id="cc"><sup>[2]</sup></a>
 </pre>
 
-## Handle Circle Event ##
+#### Handle Circle Event
 <pre>
 handleCircleEvent(leaf)
 1.  get references to next leaf, previous leaf, next breakpoint, and
