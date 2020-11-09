@@ -1,4 +1,3 @@
-#!/usr/local/bin/python3.8
 from voronoi.algorithm import fortunes, getPerimeter, performantPerimeter, newfortunes
 import multiprocessing as mp
 import voronoi.calc as Calc
