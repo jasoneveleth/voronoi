@@ -6,15 +6,17 @@ I suggest `venv` so you don't mess up your python environment. For \*nix, run th
 First, run this to make your environment:
 
 ```bash
+$ git clone https://github.com/jasoneveleth/voronoi
 $ python3.8 -m venv <environment_name>
         ^ can be your prefered python version over 3.x.x
+$ source <environment_name>/bin/activate
+$ python -m pip install -r requirements.txt
 ```
 
 Then run this everytime you enter the repo (want to use python), it will use correct python and correct packages until the deactivate command:
 
 ```bash
 $ source <environment_name>/bin/activate
-$ python -m pip install -r requirements.txt
   ...
   # you are now good to go, use the `python` command to run Voronoi.py
   ...
