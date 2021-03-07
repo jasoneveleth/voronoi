@@ -19,9 +19,16 @@ Then run this everytime you enter the repo (want to use python), it will use cor
 $ source <environment_name>/bin/activate
   ...
   # you are now good to go, use the `python` command to run Voronoi.py
+  python Voronoi.py
   ...
 $ deactivate
 ```
+
+<!-- At most 2n-1 arcs on the beach line -->
+<!-- At most 2n-5 vertices -->
+<!-- At most 3n-6 edges -->
+
+<!-- https://stackoverflow.com/questions/24467972/calculate-area-of-polygon-given-x-y-coordinates -->
 
 ### Pseudocode
 This is designed as a better explanation of [this textbook's](https://people.inf.elte.hu/fekete/algoritmusok_msc/terinfo_geom/konyvek/Computational%20Geometry%20-%20Algorithms%20and%20Applications,%203rd%20Ed.pdf) explanation of contructing Voronoi diagrams, and I assume you've read this already (chapter 7 and the datastructures required). This README will help explain some of my code which isn't commented.

@@ -158,5 +158,5 @@ points = np.array([[15,63],[6.25,24],[86,42],[0.5,0.75],[0.24,0.754],[0.86,0.23]
 vor = Voronoi(points)
 fig = voronoi_plot_2d(vor)
 plt.xlim([0, 1]), plt.ylim([0, 1])
-plt.savefig('visual/test')
+plt.savefig('visuals/test')
 
