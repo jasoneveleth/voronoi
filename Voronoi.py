@@ -287,10 +287,10 @@ def plotAnimation(collection, fileNum=''):
     anim.save(f'visuals/temp{fileNum}.gif', writer='imagemagick')
 
 if __name__ == "__main__":
-    numPoints = 50
-    numTrials = 10
-    stepSize = 0.001
-    jiggleSize = 0.001
+    numPoints = 100
+    numTrials = 100
+    stepSize = 3e-3
+    jiggleSize = 1e-4
     print(f"""
 points: {numPoints}, trials: {numTrials}, change: {stepSize}, jiggle: {jiggleSize}
 input desired simulation:
